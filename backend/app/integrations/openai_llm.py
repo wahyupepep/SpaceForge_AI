@@ -36,7 +36,7 @@ class OpenAILLMService:
             arguments["tools"] = list(request.tools)
 
         started_at = time.perf_counter()
-        logger = logging.getLogger("specforge.llm")
+        logger = logging.getLogger("spaceforge.llm")
         try:
             response = await self._client.responses.parse(**arguments)
             output = response.output_parsed

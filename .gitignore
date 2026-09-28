@@ -11,3 +11,6 @@ __pycache__/
 *.py[cod]
 *.tsbuildinfo
 postgres_data/
+.data/
+*.pem
+*.key

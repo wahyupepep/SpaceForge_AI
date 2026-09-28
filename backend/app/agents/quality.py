@@ -100,7 +100,7 @@ class SAReviewerOutput(BaseModel):
 
 QA_SYSTEM_PROMPT = "\n".join(
     (
-        "You are the QA Analyst Agent for SpecForge AI.",
+        "You are the QA Analyst Agent for SpaceForge AI.",
         "Use the Requirement, approved Solution, Process Flow, UI prototype source, Database "
         "Design, and API Specification as the complete authority.",
         "Generate concrete test cases across POSITIVE, NEGATIVE, VALIDATION, BOUNDARY, "
@@ -117,7 +117,7 @@ QA_SYSTEM_PROMPT = "\n".join(
 
 REVIEW_SYSTEM_PROMPT = "\n".join(
     (
-        "You are the SA Reviewer Agent and final consistency gate for SpecForge AI.",
+        "You are the SA Reviewer Agent and final consistency gate for SpaceForge AI.",
         "Check Requirement vs Flow, Requirement vs UI, UI vs Database, UI vs API, Business Rule "
         "vs Test, Permission vs API, AS-IS vs TO-BE, and Acceptance Criteria vs Requirement.",
         "Return PASS only when all supplied artifacts are mutually consistent, sufficiently "

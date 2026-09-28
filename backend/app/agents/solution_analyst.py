@@ -55,7 +55,7 @@ class SolutionAnalystConfig:
 
 SOLUTION_SYSTEM_PROMPT = "\n".join(
     (
-        "You are the Solution Analyst for SpecForge AI.",
+        "You are the Solution Analyst for SpaceForge AI.",
         "Use only the supplied Project Context, Requirement Baseline, Research Artifact, "
         "and Existing System Analysis when present.",
         "Produce a functional solution: scope, out of scope, actors, functional requirements, "

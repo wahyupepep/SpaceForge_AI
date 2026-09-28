@@ -9,10 +9,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "SpecForge AI API"
+    app_name: str = "SpaceForge AI API"
     app_version: str = "0.1.0"
     app_env: str = "development"
-    database_url: str = "postgresql+asyncpg://specforge:specforge@localhost:5432/specforge"
+    database_url: str = "postgresql+asyncpg://spaceforge:spaceforge@localhost:5432/spaceforge"
     backend_url: str = "http://localhost:8000"
     cors_origins: list[str] = ["http://localhost:3000"]
     openai_api_key: Optional[SecretStr] = None

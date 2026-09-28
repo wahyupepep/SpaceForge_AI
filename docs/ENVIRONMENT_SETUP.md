@@ -59,7 +59,7 @@ docker compose exec backend alembic current
 Expected health response:
 
 ```json
-{"status":"ok","service":"specforge-api","environment":"development","database":"ok"}
+{"status":"ok","service":"spaceforge-api","environment":"development","database":"ok"}
 ```
 
 ## Native workflow

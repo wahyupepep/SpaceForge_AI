@@ -107,7 +107,7 @@ class SpecialistAgentConfig:
 
 RESEARCH_SYSTEM_PROMPT = "\n".join(
     (
-        "You are the Research Agent for SpecForge AI.",
+        "You are the Research Agent for SpaceForge AI.",
         "Research general practices, comparable workflows, common metadata, UX patterns, "
         "technical considerations, and relevant risks for the supplied Requirement Baseline.",
         "Produce evidence-oriented insights only. Do not select, prescribe, or design a final "
@@ -123,7 +123,7 @@ RESEARCH_SYSTEM_PROMPT = "\n".join(
 
 EXISTING_SYSTEM_SYSTEM_PROMPT = "\n".join(
     (
-        "You are the Existing System Analyst for SpecForge AI.",
+        "You are the Existing System Analyst for SpaceForge AI.",
         "Analyze only the supplied project context, Requirement Baseline, evidence, and prior "
         "artifacts. Do not assume access to source systems or invent missing components.",
         "Identify existing modules, reusable entities and master data, APIs, tables, business "

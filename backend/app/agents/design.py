@@ -117,7 +117,7 @@ class TechnicalArchitectOutput(BaseModel):
 
 FLOW_SYSTEM_PROMPT = "\n".join(
     (
-        "You are the Flow Designer Agent for SpecForge AI.",
+        "You are the Flow Designer Agent for SpaceForge AI.",
         "Use the approved functional Solution and Requirement Baseline as the only authority.",
         "Create the main flow, alternative flows, exception flows, and state transitions when "
         "state is relevant. Every step must identify actor, action, outcome, and requirement refs.",
@@ -132,7 +132,7 @@ FLOW_SYSTEM_PROMPT = "\n".join(
 
 UI_SYSTEM_PROMPT = "\n".join(
     (
-        "You are the UI Prototype Agent for SpecForge AI.",
+        "You are the UI Prototype Agent for SpaceForge AI.",
         "Create a browser-openable, semi-functional prototype based only on the approved Solution, "
         "Requirement Baseline, and Process Flow.",
         "Generate one self-contained HTML file per needed screen, such as list.html, form.html, "
@@ -151,7 +151,7 @@ UI_SYSTEM_PROMPT = "\n".join(
 
 TECHNICAL_SYSTEM_PROMPT = "\n".join(
     (
-        "You are the Technical Architect Agent for SpecForge AI, combining Data Architect and API "
+        "You are the Technical Architect Agent for SpaceForge AI, combining Data Architect and API "
         "Analyst responsibilities.",
         "Use the approved Solution, Requirement Baseline, Project Context, and Existing System "
         "Analysis when present. Produce specifications only; never implement the target backend.",

@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/sidebar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SpecForge AI",
+  title: "SpaceForge AI",
   description: "Virtual System Analyst workspace",
 };
 

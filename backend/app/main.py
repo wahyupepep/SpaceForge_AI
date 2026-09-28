@@ -34,7 +34,7 @@ def create_app() -> FastAPI:
 
     @application.exception_handler(ApplicationError)
     async def application_error_handler(request: Request, exc: ApplicationError) -> JSONResponse:
-        logging.getLogger("specforge.error").warning(
+        logging.getLogger("spaceforge.error").warning(
             "application_error",
             extra={
                 "request_id": getattr(request.state, "request_id", None),
@@ -53,7 +53,7 @@ def create_app() -> FastAPI:
     async def validation_error_handler(
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
-        logging.getLogger("specforge.error").warning(
+        logging.getLogger("spaceforge.error").warning(
             "request_validation_error",
             extra={
                 "request_id": getattr(request.state, "request_id", None),
@@ -74,7 +74,7 @@ def create_app() -> FastAPI:
 
     @application.exception_handler(Exception)
     async def unhandled_error_handler(request: Request, exc: Exception) -> JSONResponse:
-        logging.getLogger("specforge.error").exception(
+        logging.getLogger("spaceforge.error").exception(
             "unhandled_error",
             extra={
                 "request_id": getattr(request.state, "request_id", None),

@@ -19,4 +19,4 @@ Never continue a gated workflow from partially parsed or unvalidated model outpu
 - State transitions are explicit and checked before specialist execution.
 - Quality revision count is bounded by `QUALITY_MAX_REVISIONS`; task dependency validation rejects cycles and duplicate task IDs.
 
-A timeout does not prove that an external provider performed no work. Recovery is safe for SpecForge persistence because artifacts are written only after a valid response, but the MVP does not claim provider-side exactly-once execution.
+A timeout does not prove that an external provider performed no work. Recovery is safe for SpaceForge persistence because artifacts are written only after a valid response, but the MVP does not claim provider-side exactly-once execution.

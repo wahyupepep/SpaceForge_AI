@@ -8,7 +8,7 @@ Runtime logs intentionally contain metadata only. Detailed AI request/response d
 
 ## Ringkasan
 
-SpecForge AI menggunakan modular monolith untuk MVP. Frontend dan backend terpisah sebagai deployable unit, sedangkan domain, application, dan infrastructure dipisahkan secara logis di backend. Pilihan ini menjaga delivery sederhana sambil menyediakan boundary yang dapat dikembangkan.
+SpaceForge AI menggunakan modular monolith untuk MVP. Frontend dan backend terpisah sebagai deployable unit, sedangkan domain, application, dan infrastructure dipisahkan secara logis di backend. Pilihan ini menjaga delivery sederhana sambil menyediakan boundary yang dapat dikembangkan.
 
 ```text
 Browser
