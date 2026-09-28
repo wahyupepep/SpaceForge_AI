@@ -18,7 +18,7 @@ async def health_check(database_ready: DatabaseReadiness) -> HealthResponse:
 
     return HealthResponse(
         status="ok",
-        service="specforge-api",
+        service="spaceforge-api",
         environment=settings.app_env,
         database="ok",
     )

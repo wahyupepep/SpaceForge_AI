@@ -9,7 +9,7 @@ export function Sidebar() {
   return (
     <aside className="border-b border-ink/10 bg-ink px-6 py-6 text-white lg:min-h-screen lg:border-b-0 lg:border-r">
       <Link href="/" className="block text-xl font-bold tracking-tight">
-        SpecForge <span className="text-accent">AI</span>
+        SpaceForge <span className="text-accent">AI</span>
       </Link>
       <p className="mt-1 text-xs uppercase tracking-[0.2em] text-white/50">System Analyst Workspace</p>
       <nav className="mt-8 flex gap-2 lg:flex-col">

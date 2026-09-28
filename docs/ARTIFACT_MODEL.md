@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Artifact adalah output terstruktur, tervalidasi, dan dapat diaudit dari setiap tahap analisis SpecForge AI. Artifact bukan chat transcript. PostgreSQL menjadi source of truth dan setiap perubahan content menghasilkan versi baru.
+Artifact adalah output terstruktur, tervalidasi, dan dapat diaudit dari setiap tahap analisis SpaceForge AI. Artifact bukan chat transcript. PostgreSQL menjadi source of truth dan setiap perubahan content menghasilkan versi baru.
 
 Phase 2 belum menjalankan LLM. Requirement Baseline dibuat dari input yang dikonfirmasi user melalui Requirement Workspace; sistem tidak mengarang solusi dari raw requirement.
 

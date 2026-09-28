@@ -1,6 +1,6 @@
 # Technical Stack
 
-Dokumen ini adalah **source of truth** untuk pilihan teknologi SpecForge AI. Perubahan stack wajib dicatat di sini dan, bila mengubah trade-off arsitektur, di `ARCHITECTURE_DECISIONS.md`.
+Dokumen ini adalah **source of truth** untuk pilihan teknologi SpaceForge AI. Perubahan stack wajib dicatat di sini dan, bila mengubah trade-off arsitektur, di `ARCHITECTURE_DECISIONS.md`.
 
 ## Runtime dan application stack
 

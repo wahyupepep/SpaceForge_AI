@@ -25,7 +25,7 @@ def test_health_check() -> None:
     assert response.headers["x-request-id"]
     assert response.json() == {
         "status": "ok",
-        "service": "specforge-api",
+        "service": "spaceforge-api",
         "environment": "development",
         "database": "ok",
     }

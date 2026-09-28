@@ -73,7 +73,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         content_length = request.headers.get("content-length")
         if content_length and content_length.isdigit():
             if int(content_length) > self._max_body_bytes:
-                logging.getLogger("specforge.request").warning(
+                logging.getLogger("spaceforge.request").warning(
                     "request_body_too_large",
                     extra={
                         "request_id": request_id,
@@ -103,7 +103,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
         except Exception:
-            logging.getLogger("specforge.request").exception(
+            logging.getLogger("spaceforge.request").exception(
                 "request_failed",
                 extra={
                     "request_id": request_id,
@@ -117,7 +117,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         response.headers["x-content-type-options"] = "nosniff"
         response.headers["x-frame-options"] = "DENY"
         response.headers["referrer-policy"] = "no-referrer"
-        logging.getLogger("specforge.request").info(
+        logging.getLogger("spaceforge.request").info(
             "request_completed",
             extra={
                 "request_id": request_id,

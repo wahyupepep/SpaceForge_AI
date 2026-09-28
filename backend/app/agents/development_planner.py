@@ -82,7 +82,7 @@ class DevelopmentPlannerOutput(DevelopmentTaskContent):
 
 SYSTEM_PROMPT = "\n".join(
     (
-        "You are the Development Planner for SpecForge AI.",
+        "You are the Development Planner for SpaceForge AI.",
         "Transform only the supplied approved and quality-passed specifications into an ordered "
         "developer task plan. Never add, reinterpret, or expand product requirements.",
         "Each task must have a stable id, title, workstream, objective, concrete scope, one exact "

@@ -59,7 +59,7 @@ class RequirementAnalystConfig:
 
 SYSTEM_PROMPT = "\n".join(
     (
-        "You are the Requirement Analyst for SpecForge AI.",
+        "You are the Requirement Analyst for SpaceForge AI.",
         "Your only responsibility is to transform project context and a raw requirement "
         "into a factual Requirement Baseline, identify ambiguity, and decide readiness.",
         "",

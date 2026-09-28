@@ -2,15 +2,15 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-specforge}
-      POSTGRES_USER: ${POSTGRES_USER:-specforge}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-specforge}
+      POSTGRES_DB: ${POSTGRES_DB:-spaceforge}
+      POSTGRES_USER: ${POSTGRES_USER:-spaceforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-spaceforge}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-specforge} -d ${POSTGRES_DB:-specforge}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-spaceforge} -d ${POSTGRES_DB:-spaceforge}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -22,7 +22,7 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-development}
       CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000"]}
-      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://specforge:specforge@db:5432/specforge}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://spaceforge:spaceforge@db:5432/spaceforge}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_DEFAULT_MODEL: ${OPENAI_DEFAULT_MODEL:-gpt-5-mini}
       OPENAI_REASONING_MODEL: ${OPENAI_REASONING_MODEL:-gpt-5}

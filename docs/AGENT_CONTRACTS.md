@@ -4,7 +4,7 @@
 
 ### Responsibility
 
-Requirement Analyst adalah specialist AI pertama SpecForge AI. Ia membaca Project Context dan satu Raw Requirement, mengekstrak fakta menjadi Requirement Baseline, membuat ketidakjelasan eksplisit, dan menentukan readiness.
+Requirement Analyst adalah specialist AI pertama SpaceForge AI. Ia membaca Project Context dan satu Raw Requirement, mengekstrak fakta menjadi Requirement Baseline, membuat ketidakjelasan eksplisit, dan menentukan readiness.
 
 Agent tidak menentukan tahap berikutnya. Application service menyimpan output, menerapkan clarification gate, dan mengelola artifact version serta audit trail.
 

@@ -6,11 +6,11 @@ Tim produk sering menerima kebutuhan software dalam bentuk percakapan, catatan s
 
 ## Masalah yang diselesaikan
 
-SpecForge AI mengurangi jarak antara ide bisnis dan pekerjaan engineering. Sistem membantu mencegah requirement ambigu, keputusan yang tidak memiliki dasar, hilangnya aturan bisnis, desain teknis yang dibuat terlalu dini, dan test yang tidak dapat ditelusuri kembali ke kebutuhan awal.
+SpaceForge AI mengurangi jarak antara ide bisnis dan pekerjaan engineering. Sistem membantu mencegah requirement ambigu, keputusan yang tidak memiliki dasar, hilangnya aturan bisnis, desain teknis yang dibuat terlalu dini, dan test yang tidak dapat ditelusuri kembali ke kebutuhan awal.
 
 ## Konsep Virtual System Analyst
 
-SpecForge AI bertindak sebagai Virtual System Analyst: sebuah workspace terpandu yang mengumpulkan konteks, mengajukan klarifikasi, menyusun analisis, mengusulkan solusi, dan menghasilkan artifact terstruktur. AI mendukung pekerjaan analisis; AI tidak menggantikan keputusan pemilik produk, subject-matter expert, system analyst, architect, atau developer.
+SpaceForge AI bertindak sebagai Virtual System Analyst: sebuah workspace terpandu yang mengumpulkan konteks, mengajukan klarifikasi, menyusun analisis, mengusulkan solusi, dan menghasilkan artifact terstruktur. AI mendukung pekerjaan analisis; AI tidak menggantikan keputusan pemilik produk, subject-matter expert, system analyst, architect, atau developer.
 
 ## Target user
 

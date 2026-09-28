@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Development Handoff adalah tahap kompilasi terakhir SpecForge AI. Ia tidak membuat requirement, solution, atau technical decision baru. Generator hanya menyusun artifact yang current, approved, dan telah memperoleh passing SA Review.
+Development Handoff adalah tahap kompilasi terakhir SpaceForge AI. Ia tidak membuat requirement, solution, atau technical decision baru. Generator hanya menyusun artifact yang current, approved, dan telah memperoleh passing SA Review.
 
 ## Gate
 

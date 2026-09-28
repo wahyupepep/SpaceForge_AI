@@ -1,6 +1,6 @@
-# SpecForge AI
+# SpaceForge AI
 
-SpecForge AI is a Virtual System Analyst that turns software requirements into a structured, reviewable Development Handoff Package. The current implementation covers context intake, requirement clarification, research, existing-system analysis, human-approved solution design, flow/UI/technical specifications, QA, consistency review, and final handoff export.
+SpaceForge AI is a Virtual System Analyst that turns software requirements into a structured, reviewable Development Handoff Package. The current implementation covers context intake, requirement clarification, research, existing-system analysis, human-approved solution design, flow/UI/technical specifications, QA, consistency review, and final handoff export.
 
 ## Repository layout
 

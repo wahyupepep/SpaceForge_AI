@@ -10,7 +10,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("SpecForge page error", { digest: error.digest });
+    console.error("SpaceForge page error", { digest: error.digest });
   }, [error]);
 
   return (
