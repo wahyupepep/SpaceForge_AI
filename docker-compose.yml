@@ -1,0 +1,91 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-specforge}
+      POSTGRES_USER: ${POSTGRES_USER:-specforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-specforge}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-specforge} -d ${POSTGRES_DB:-specforge}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000"]}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://specforge:specforge@db:5432/specforge}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_DEFAULT_MODEL: ${OPENAI_DEFAULT_MODEL:-gpt-5-mini}
+      OPENAI_REASONING_MODEL: ${OPENAI_REASONING_MODEL:-gpt-5}
+      OPENAI_REQUIREMENT_ANALYST_MODEL: ${OPENAI_REQUIREMENT_ANALYST_MODEL:-gpt-5}
+      OPENAI_RESEARCH_MODEL: ${OPENAI_RESEARCH_MODEL:-gpt-5}
+      OPENAI_EXISTING_SYSTEM_ANALYST_MODEL: ${OPENAI_EXISTING_SYSTEM_ANALYST_MODEL:-gpt-5}
+      OPENAI_SOLUTION_ANALYST_MODEL: ${OPENAI_SOLUTION_ANALYST_MODEL:-gpt-5}
+      OPENAI_FLOW_DESIGNER_MODEL: ${OPENAI_FLOW_DESIGNER_MODEL:-gpt-5-mini}
+      OPENAI_UI_PROTOTYPE_MODEL: ${OPENAI_UI_PROTOTYPE_MODEL:-gpt-5-mini}
+      OPENAI_TECHNICAL_ARCHITECT_MODEL: ${OPENAI_TECHNICAL_ARCHITECT_MODEL:-gpt-5}
+      OPENAI_QA_ANALYST_MODEL: ${OPENAI_QA_ANALYST_MODEL:-gpt-5}
+      OPENAI_SA_REVIEWER_MODEL: ${OPENAI_SA_REVIEWER_MODEL:-gpt-5}
+      OPENAI_DEVELOPMENT_PLANNER_MODEL: ${OPENAI_DEVELOPMENT_PLANNER_MODEL:-gpt-5}
+      OPENAI_TIMEOUT_SECONDS: ${OPENAI_TIMEOUT_SECONDS:-120}
+      OPENAI_MAX_RETRIES: ${OPENAI_MAX_RETRIES:-2}
+      RESEARCH_WEB_SEARCH_ENABLED: ${RESEARCH_WEB_SEARCH_ENABLED:-true}
+      AI_TEMPERATURE: ${AI_TEMPERATURE:-}
+      AI_MAX_OUTPUT_TOKENS: ${AI_MAX_OUTPUT_TOKENS:-4096}
+      AI_PROTOTYPE_MAX_OUTPUT_TOKENS: ${AI_PROTOTYPE_MAX_OUTPUT_TOKENS:-12000}
+      QUALITY_MAX_REVISIONS: ${QUALITY_MAX_REVISIONS:-5}
+      ORCHESTRATOR_LEASE_SECONDS: ${ORCHESTRATOR_LEASE_SECONDS:-900}
+      MAX_REQUEST_BODY_BYTES: ${MAX_REQUEST_BODY_BYTES:-5242880}
+      FILE_STORAGE_ROOT: ${FILE_STORAGE_ROOT:-/data/files}
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - generated_files:/data/files
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    environment:
+      BACKEND_URL: ${BACKEND_URL:-http://backend:8000}
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000/api/v1}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  frontend_node_modules:
+  frontend_next:
+  generated_files:
