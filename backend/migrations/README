@@ -1,0 +1,2 @@
+All database schema changes must be applied through Alembic revisions.
+

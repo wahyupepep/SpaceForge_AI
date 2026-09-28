@@ -1,0 +1,43 @@
+from enum import Enum
+
+
+class TestCategory(str, Enum):
+    POSITIVE = "POSITIVE"
+    NEGATIVE = "NEGATIVE"
+    VALIDATION = "VALIDATION"
+    BOUNDARY = "BOUNDARY"
+    PERMISSION = "PERMISSION"
+    WORKFLOW = "WORKFLOW"
+    INTEGRATION = "INTEGRATION"
+    REGRESSION = "REGRESSION"
+
+
+class ReviewDecision(str, Enum):
+    PASS = "PASS"
+    REVISION_REQUIRED = "REVISION_REQUIRED"
+
+
+class ReviewSeverity(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+
+class QualityWorkflowStatus(str, Enum):
+    READY_FOR_REVIEW = "READY_FOR_REVIEW"
+    REVISION_REQUIRED = "REVISION_REQUIRED"
+    PASSED = "PASSED"
+    MAX_REVISIONS_REACHED = "MAX_REVISIONS_REACHED"
+
+
+REVIEWABLE_ARTIFACT_TYPES = frozenset(
+    {
+        "PROCESS_FLOW",
+        "UI_PROTOTYPE",
+        "DATABASE_DESIGN",
+        "API_SPECIFICATION",
+        "TEST_SCENARIO",
+        "ACCEPTANCE_CRITERIA",
+    }
+)

@@ -1,0 +1,13 @@
+.git
+.env
+**/.DS_Store
+**/.next
+**/.pytest_cache
+**/.ruff_cache
+**/.venv
+**/__pycache__
+**/node_modules
+**/*.pyc
+**/*.tsbuildinfo
+postgres_data
+
