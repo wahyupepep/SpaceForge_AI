@@ -84,9 +84,11 @@ export function RequirementWorkspace({
 
   async function createRequirement(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting) return;
+    const formElement = event.currentTarget;
     setSubmitting(true);
     setError(null);
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
     const payload: RequirementInput = {
       title: String(form.get("title") ?? "").trim(),
       raw_requirement: String(form.get("raw_requirement") ?? "").trim(),
@@ -98,7 +100,7 @@ export function RequirementWorkspace({
     };
     try {
       await requirementsService.create(project.id, payload);
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     } catch (caught) {
       setError(errorMessage(caught));
@@ -382,7 +384,10 @@ export function RequirementWorkspace({
             <label className="text-sm font-semibold">Batasan <span className="font-normal text-ink/45">(satu per baris)</span><textarea name="constraints" rows={3} className={fieldClass} /></label>
             <label className="text-sm font-semibold">Dependensi <span className="font-normal text-ink/45">(satu per baris)</span><textarea name="dependencies" rows={3} className={fieldClass} /></label>
           </div>
-          <div className="mt-5 flex justify-end"><button disabled={submitting} className="rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{submitting ? "Menyimpan…" : "Simpan dan mulai penggalian"}</button></div>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+            <p className="max-w-md text-xs leading-5 text-ink/60">Setelah disimpan, pilih “Mulai penggalian” untuk menjalankan analisis.</p>
+            <button disabled={submitting} className="rounded-lg bg-[#bf4623] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#a83b1c] disabled:opacity-60">{submitting ? "Menyimpan…" : "Simpan requirement"}</button>
+          </div>
         </form>
         </details>
       )}

@@ -1,14 +1,15 @@
 .page {
-  --auth-ink: #1c302d;
-  --auth-muted: #667570;
-  --auth-line: #dce4df;
-  --auth-panel: #edf3f0;
+  --auth-ink: #18201f;
+  --auth-muted: #68665f;
+  --auth-line: #47534c;
+  --auth-panel: #17201f;
+  --auth-accent: #bf4623;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-height: 100svh;
   gap: 20px;
   padding: 20px;
-  background: #fff;
+  background: #f6f4ef;
   color: var(--auth-ink);
 }
 
@@ -91,7 +92,7 @@
   width: 100%;
   height: 50px;
   padding: 0 14px;
-  border: 1px solid #cbd6cf;
+  border: 1px solid #c9c5bd;
   border-radius: 7px;
   background: #fff;
   color: var(--auth-ink);
@@ -100,14 +101,14 @@
   transition: border-color 160ms, box-shadow 160ms;
 }
 
-.field input::placeholder { color: #6b7971; opacity: 1; }
-.field input:hover { border-color: #a5b7ab; }
+.field input::placeholder { color: #78736c; opacity: 1; }
+.field input:hover { border-color: #9e9487; }
 .field input:focus-visible {
-  border-color: #587a64;
+  border-color: var(--auth-accent);
   outline: none;
-  box-shadow: 0 0 0 3px #587a6420;
+  box-shadow: 0 0 0 3px #d6532d26;
 }
-.field input:disabled { background: #f7f9f8; color: var(--auth-muted); }
+.field input:disabled { background: #f3f0eb; color: var(--auth-muted); }
 
 .passwordField { position: relative; }
 .passwordField input { padding-right: 52px; }
@@ -123,11 +124,11 @@
   border: 0;
   border-radius: 5px;
   background: transparent;
-  color: #79867d;
+  color: #7d756c;
   cursor: pointer;
 }
 .visibilityButton svg { width: 19px; height: 19px; }
-.visibilityButton:hover { background: #f1f5f2; color: var(--auth-ink); }
+.visibilityButton:hover { background: #fff0e8; color: var(--auth-accent); }
 
 .hint { margin: 7px 0 0; color: var(--auth-muted); font-size: 12px; line-height: 1.5; }
 
@@ -140,17 +141,17 @@
   min-height: 49px;
   margin-top: 27px;
   padding: 12px 20px;
-  border: 1px solid #213c32;
+  border: 1px solid var(--auth-accent);
   border-radius: 7px;
-  background: #213c32;
+  background: var(--auth-accent);
   color: #fff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: background 160ms, border-color 160ms, box-shadow 160ms;
 }
-.submit:hover { border-color: #345744; background: #345744; box-shadow: 0 3px 9px #213c3212; }
-.submit:active { background: #1a3028; }
+.submit:hover { border-color: #a83b1c; background: #a83b1c; box-shadow: 0 3px 9px #bf462326; }
+.submit:active { background: #963318; }
 .submit:disabled { cursor: wait; opacity: 0.7; box-shadow: none; }
 
 .switchMode {
@@ -166,7 +167,7 @@
   border: 0;
   border-radius: 3px;
   background: transparent;
-  color: #2f5941;
+  color: #a73c1e;
   font-weight: 650;
   cursor: pointer;
   text-underline-offset: 4px;
@@ -193,6 +194,7 @@
   padding: clamp(36px, 4.2vw, 68px);
   border-radius: 20px;
   background: var(--auth-panel);
+  color: #f8f4ed;
 }
 
 .storyIntro { width: 100%; max-width: 480px; margin: 0 auto; }
@@ -206,7 +208,7 @@
 .storyIntro > p {
   max-width: 350px;
   margin: 20px 0 0;
-  color: #5c7062;
+  color: #c0c7c1;
   font-size: 14px;
   line-height: 1.8;
 }
@@ -218,8 +220,8 @@
   overflow: hidden;
   border: 1px solid var(--auth-line);
   border-radius: 11px;
-  background: #fff;
-  box-shadow: 0 14px 30px -24px #284b3766;
+  background: #202b29;
+  box-shadow: 0 14px 30px -24px #0008;
 }
 
 .documentHeader {
@@ -227,7 +229,7 @@
   align-items: center;
   gap: 11px;
   padding: 20px 22px;
-  border-bottom: 1px solid #ecf0ed;
+  border-bottom: 1px solid #3d4841;
 }
 .documentIcon {
   display: grid;
@@ -235,14 +237,14 @@
   height: 39px;
   flex: none;
   place-items: center;
-  border: 1px solid #e5ebe6;
+  border: 1px solid #6e503b;
   border-radius: 6px;
-  background: #f8faf8;
-  color: #6d8575;
+  background: #332f25;
+  color: #f5af87;
 }
 .documentIcon svg { width: 20px; height: 20px; }
-.documentHeader p { margin: 0; color: #425d4c; font-size: 13px; font-weight: 600; }
-.documentHeader span:not(.documentIcon) { display: block; margin-top: 4px; color: #66776b; font-size: 11px; }
+.documentHeader p { margin: 0; color: #fff7ee; font-size: 13px; font-weight: 600; }
+.documentHeader span:not(.documentIcon) { display: block; margin-top: 4px; color: #bac2bc; font-size: 11px; }
 .workflow { display: block; width: 100%; height: auto; padding: 12px 10px 13px; font-family: inherit; }
 
 .spinner {

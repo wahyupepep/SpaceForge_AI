@@ -44,30 +44,30 @@ function AnalysisIllustration() {
       <svg className={styles.workflow} viewBox="0 0 480 320" role="img" aria-labelledby="workflow-title workflow-description">
         <title id="workflow-title">Alur kerja SpaceForge</title>
         <desc id="workflow-description">Konteks proyek menjadi requirement. Setelah solusi disetujui, analisis menghasilkan alur dan antarmuka, spesifikasi teknis, serta rencana kerja.</desc>
-        <g fill="none" stroke="#b6c9bf" strokeWidth="1.5">
+        <g fill="none" stroke="#d47b53" strokeWidth="1.5">
           <path d="M240 75v28M240 159v28M240 215v27M85 262v-20h310v20M240 242v20" />
           <path d="m237 98 3 5 3-5M237 182l3 5 3-5" />
         </g>
-        <rect x="156" y="19" width="168" height="56" rx="8" fill="#f8faf9" stroke="#d8e3dc" />
-        <g fill="none" stroke="#647d6d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="156" y="19" width="168" height="56" rx="8" fill="#2a3731" stroke="#708076" />
+        <g fill="none" stroke="#c7cec8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="177" y="36" width="18" height="21" rx="2" />
           <path d="M182 42h8M182 47h8M182 52h5" />
         </g>
-        <text x="207" y="52" fill="#304b3b" fontSize="14" fontWeight="500">Konteks proyek</text>
-        <rect x="156" y="103" width="168" height="56" rx="8" fill="#edf4ef" stroke="#b7cfc0" />
-        <g fill="none" stroke="#486b55" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <text x="207" y="52" fill="#f4f1eb" fontSize="14" fontWeight="500">Konteks proyek</text>
+        <rect x="156" y="103" width="168" height="56" rx="8" fill="#bf4623" stroke="#eb865f" />
+        <g fill="none" stroke="#fff7ee" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="m177 125 3 3 5-6M189 125h8m-20 13 3 3 5-6M189 138h8" />
         </g>
-        <text x="207" y="136" fill="#304b3b" fontSize="14" fontWeight="500">Requirement</text>
-        <circle cx="240" cy="201" r="14" fill="#fff8f3" stroke="#dcad91" />
-        <path d="m234.5 201 3.5 3.5 7-7" fill="none" stroke="#ad633b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        <text x="263" y="206" fill="#6c766f" fontSize="12">Solusi disetujui</text>
-        <g fill="#fff" stroke="#d8e3dc">
+        <text x="207" y="136" fill="#fff" fontSize="14" fontWeight="500">Requirement</text>
+        <circle cx="240" cy="201" r="14" fill="#3c2b20" stroke="#e6a17d" />
+        <path d="m234.5 201 3.5 3.5 7-7" fill="none" stroke="#ffc4a1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <text x="263" y="206" fill="#c2c9c3" fontSize="12">Solusi disetujui</text>
+        <g fill="#202b29" stroke="#5e6c63">
           <rect x="15" y="262" width="140" height="42" rx="7" />
           <rect x="170" y="262" width="140" height="42" rx="7" />
           <rect x="325" y="262" width="140" height="42" rx="7" />
         </g>
-        <g fill="#4e6657" fontSize="11.5" fontWeight="500" textAnchor="middle">
+        <g fill="#e5ece5" fontSize="11.5" fontWeight="500" textAnchor="middle">
           <text x="85" y="288">Alur &amp; antarmuka</text>
           <text x="240" y="288">Spesifikasi teknis</text>
           <text x="395" y="288">Rencana kerja</text>
