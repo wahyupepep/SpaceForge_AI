@@ -57,9 +57,7 @@ class OrchestratorMemoryRepository:
     async def get_execution(self, execution_id):  # type: ignore[no-untyped-def]
         if self.workflow is None:
             return None
-        return next(
-            (item for item in self.workflow.executions if item.id == execution_id), None
-        )
+        return next((item for item in self.workflow.executions if item.id == execution_id), None)
 
     async def try_acquire_lease(self, _workflow_id, run_id, lease_expires_at):  # type: ignore[no-untyped-def]
         assert self.workflow is not None
@@ -118,7 +116,8 @@ class OrchestratorMemoryRepository:
 
 
 @pytest.mark.asyncio
-async def test_enhancement_nominal_approval_resumes_through_all_gates() -> None:
+@pytest.mark.parametrize("max_stages", [0, 1])
+async def test_enhancement_nominal_approval_resumes_through_all_gates(max_stages: int) -> None:
     repository = OrchestratorMemoryRepository()
     requirement_service = AsyncMock()
     discovery_service = AsyncMock()
@@ -140,9 +139,7 @@ async def test_enhancement_nominal_approval_resumes_through_all_gates() -> None:
 
     async def solution(*_args):  # type: ignore[no-untyped-def]
         repository.add_artifact(ArtifactType.SOLUTION)
-        repository.solution = SimpleNamespace(
-            status=SolutionWorkflowStatus.WAITING_USER_APPROVAL
-        )
+        repository.solution = SimpleNamespace(status=SolutionWorkflowStatus.WAITING_USER_APPROVAL)
 
     async def flow(*_args):  # type: ignore[no-untyped-def]
         repository.add_artifact(ArtifactType.PROCESS_FLOW)
@@ -205,16 +202,48 @@ async def test_enhancement_nominal_approval_resumes_through_all_gates() -> None:
         quality_service,
         handoff_service,
         900,
+        max_stages_per_request=max_stages,
     )
-    waiting_approval = await service.start(
-        repository.project.id, repository.requirement.id, []
-    )
+
+    async def continue_to_gate(response):  # type: ignore[no-untyped-def]
+        agents = (
+            requirement_service.analyze,
+            discovery_service.run_research,
+            discovery_service.analyze_existing_system,
+            solution_service.generate,
+            design_service.run_flow,
+            design_service.run_technical_architecture,
+            design_service.run_ui_prototype,
+            quality_service.run_qa,
+            quality_service.run_review,
+            quality_service.revise,
+            handoff_service.plan,
+        )
+        for _ in range(100):
+            if response.status != OrchestratorStatus.ACTIVE:
+                return response
+            if max_stages:
+                # A persisted stage can be resumed after an instance/page change.
+                assert repository.workflow.active_run_id is None
+            calls_before = sum(agent.await_count for agent in agents)
+            response = await service.resume(repository.project.id, repository.requirement.id)
+            if max_stages:
+                assert sum(agent.await_count for agent in agents) - calls_before <= 1
+        pytest.fail("Workflow did not reach a user gate within 100 requests.")
+
+    waiting_approval = await service.start(repository.project.id, repository.requirement.id, [])
+    if max_stages:
+        assert len(waiting_approval.executions) == 1
+        assert waiting_approval.current_stage == OrchestratorStage.REQUIREMENT_ANALYSIS
+        requirement_service.analyze.assert_not_awaited()
+    waiting_approval = await continue_to_gate(waiting_approval)
     assert waiting_approval.current_stage == OrchestratorStage.USER_APPROVAL
     assert waiting_approval.pending_user_action == "APPROVE_SOLUTION"
     assert ArtifactType.EXISTING_SYSTEM_ANALYSIS.value in waiting_approval.artifact_status
 
     repository.solution.status = SolutionWorkflowStatus.APPROVED
     waiting_handoff = await service.resume(repository.project.id, repository.requirement.id)
+    waiting_handoff = await continue_to_gate(waiting_handoff)
     assert waiting_handoff.current_stage == OrchestratorStage.HANDOFF_READY
     assert waiting_handoff.pending_user_action == "PREVIEW_AND_EXPORT_HANDOFF"
     assert waiting_handoff.revision_history[0]["artifact"] == "PROCESS_FLOW"

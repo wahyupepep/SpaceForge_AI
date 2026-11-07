@@ -13,5 +13,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // API requests include login/register and must reach FastAPI. Page redirects
+  // must not turn API responses into HTML or prevent setting the session cookie.
+  matcher: ["/((?!api/|api$|_next/static|_next/image|favicon.ico).*)"],
 };

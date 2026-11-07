@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.api.dependencies import require_project_access
 from app.api.v1.routes.artifacts import router as artifacts_router
 from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.design_generation import router as design_generation_router
@@ -16,13 +17,16 @@ from app.api.v1.routes.solution_analysis import router as solution_analysis_rout
 router = APIRouter()
 router.include_router(health_router)
 router.include_router(auth_router)
-router.include_router(projects_router)
-router.include_router(requirements_router)
-router.include_router(artifacts_router)
-router.include_router(requirement_analysis_router)
-router.include_router(discovery_analysis_router)
-router.include_router(solution_analysis_router)
-router.include_router(design_generation_router)
-router.include_router(quality_gate_router)
-router.include_router(development_handoff_router)
-router.include_router(orchestrator_router)
+
+project_routes = APIRouter(dependencies=[Depends(require_project_access)])
+project_routes.include_router(projects_router)
+project_routes.include_router(requirements_router)
+project_routes.include_router(artifacts_router)
+project_routes.include_router(requirement_analysis_router)
+project_routes.include_router(discovery_analysis_router)
+project_routes.include_router(solution_analysis_router)
+project_routes.include_router(design_generation_router)
+project_routes.include_router(quality_gate_router)
+project_routes.include_router(development_handoff_router)
+project_routes.include_router(orchestrator_router)
+router.include_router(project_routes)

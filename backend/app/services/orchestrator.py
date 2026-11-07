@@ -45,6 +45,7 @@ class GraphState(TypedDict):
     current_stage: str
     halt: bool
     run_id: str
+    steps_remaining: int
 
 
 class SAOrchestratorService:
@@ -60,6 +61,7 @@ class SAOrchestratorService:
         quality_service: QualityGateService,
         handoff_service: DevelopmentHandoffService,
         lease_seconds: int,
+        max_stages_per_request: int = 0,
     ) -> None:
         self._repository = repository
         self._requirement_service = requirement_service
@@ -69,6 +71,7 @@ class SAOrchestratorService:
         self._quality_service = quality_service
         self._handoff_service = handoff_service
         self._lease_seconds = lease_seconds
+        self._max_stages_per_request = max_stages_per_request
         self._graph = self._build_graph()
 
     async def start(
@@ -113,18 +116,14 @@ class SAOrchestratorService:
         await self._repository.refresh_workflow(workflow)
         return await self._advance(workflow, run_id)
 
-    async def resume(
-        self, project_id: UUID, requirement_id: UUID
-    ) -> OrchestratorWorkflowResponse:
+    async def resume(self, project_id: UUID, requirement_id: UUID) -> OrchestratorWorkflowResponse:
         workflow = await self._repository.get_workflow(project_id, requirement_id)
         if workflow is None:
             raise NotFoundError("Orchestrator workflow")
         if workflow.status == OrchestratorStatus.COMPLETED:
             return self._response(workflow)
         run_id = uuid4()
-        if not await self._repository.try_acquire_lease(
-            workflow.id, run_id, self._lease_expiry()
-        ):
+        if not await self._repository.try_acquire_lease(workflow.id, run_id, self._lease_expiry()):
             raise OrchestratorConflictError(
                 "This workflow already has an active execution; retry after its lease expires."
             )
@@ -134,9 +133,7 @@ class SAOrchestratorService:
         await self._repository.commit()
         return await self._advance(workflow, run_id)
 
-    async def get(
-        self, project_id: UUID, requirement_id: UUID
-    ) -> OrchestratorWorkflowResponse:
+    async def get(self, project_id: UUID, requirement_id: UUID) -> OrchestratorWorkflowResponse:
         workflow = await self._repository.get_workflow(project_id, requirement_id)
         if workflow is None:
             raise NotFoundError("Orchestrator workflow")
@@ -158,6 +155,7 @@ class SAOrchestratorService:
             "current_stage": workflow.current_stage.value,
             "halt": False,
             "run_id": str(run_id),
+            "steps_remaining": self._max_stages_per_request or 100,
         }
         try:
             await self._graph.ainvoke(state, {"recursion_limit": 100})
@@ -253,10 +251,16 @@ class SAOrchestratorService:
             }
             execution.completed_at = datetime.now(timezone.utc)
             await self._repository.commit()
+            steps_remaining = state["steps_remaining"] - 1
             return {
                 **state,
                 "current_stage": next_stage.value,
-                "halt": bool(pending_action) or next_stage == OrchestratorStage.COMPLETED,
+                "steps_remaining": steps_remaining,
+                "halt": (
+                    bool(pending_action)
+                    or next_stage == OrchestratorStage.COMPLETED
+                    or steps_remaining <= 0
+                ),
             }
         except Exception as error:
             await self._repository.rollback()
@@ -396,11 +400,15 @@ class SAOrchestratorService:
                 )
             if ArtifactType.PROCESS_FLOW not in artifacts:
                 await self._design_service.run_flow(project_id, requirement_id)
+                if self._max_stages_per_request:
+                    return stage, None, "Flow saved; continue with technical design."
             if not {
                 ArtifactType.DATABASE_DESIGN,
                 ArtifactType.API_SPECIFICATION,
             }.issubset(artifacts):
                 await self._design_service.run_technical_architecture(project_id, requirement_id)
+                if self._max_stages_per_request:
+                    return stage, None, "Technical design saved; continue with UI prototype."
             refreshed = {
                 item.artifact_type
                 for item in await self._repository.list_artifacts(project_id, requirement_id)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { ApiClientError } from "@/services/api-client";
@@ -13,27 +13,47 @@ const label = uiLabel;
 export function OrchestratorDashboard({
   projectId,
   requirementId,
-  workflow,
+  workflow: initialWorkflow,
 }: {
   projectId: string;
   requirementId: string;
   workflow?: OrchestratorWorkflow;
 }) {
   const router = useRouter();
+  const [progress, setWorkflow] = useState(initialWorkflow);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const mounted = useRef(true);
+  const workflow = running ? progress : initialWorkflow;
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
 
   async function advance() {
+    setWorkflow(initialWorkflow);
     setRunning(true);
     setError(null);
     try {
-      if (workflow) await orchestratorService.resume(projectId, requirementId);
-      else await orchestratorService.start(projectId, requirementId);
-      router.refresh();
+      let current = workflow
+        ? await orchestratorService.resume(projectId, requirementId)
+        : await orchestratorService.start(projectId, requirementId);
+      if (mounted.current) setWorkflow(current);
+      // Each request persists one stage on Vercel. Continue until the workflow
+      // reaches a human decision; closing the page leaves it resumable.
+      while (mounted.current && current.status === "ACTIVE" && !current.pending_user_action) {
+        current = await orchestratorService.resume(projectId, requirementId);
+        if (mounted.current) setWorkflow(current);
+      }
+      if (mounted.current) router.refresh();
     } catch (caught) {
-      setError(caught instanceof ApiClientError ? caught.message : "Otomasi alur analisis gagal dijalankan.");
+      if (mounted.current) {
+        setError(caught instanceof ApiClientError ? caught.message : "Otomasi alur analisis gagal dijalankan.");
+        router.refresh();
+      }
     } finally {
-      setRunning(false);
+      if (mounted.current) setRunning(false);
     }
   }
 

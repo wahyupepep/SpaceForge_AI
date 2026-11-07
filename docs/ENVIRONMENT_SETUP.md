@@ -40,6 +40,12 @@ Salin `.env.example` menjadi `.env`. Jangan commit `.env` atau credential.
 | `ORCHESTRATOR_LEASE_SECONDS` | Yes | Lease untuk mencegah concurrent workflow execution; default `900` |
 | `MAX_REQUEST_BODY_BYTES` | Yes | Batas request berdasarkan declared content length; default `5242880` |
 | `FILE_STORAGE_ROOT` | Yes | Root local file adapter pada development |
+| `FILE_STORAGE_BACKEND` | No | `local` pada development; otomatis `database` pada Vercel |
+| `AUTH_REQUIRED` | No | Otomatis aktif pada production/Vercel; memerlukan login dan kepemilikan proyek |
+| `AUTH_COOKIE_SECURE` | No | Otomatis aktif pada production/Vercel HTTPS |
+| `ORCHESTRATOR_MAX_STAGES_PER_REQUEST` | No | `0` sampai user gate pada development; otomatis `1` pada Vercel |
+
+Untuk deployment cloud, gunakan [panduan Vercel](DEPLOYMENT.md). Jangan menyalin `.env` Docker secara utuh ke environment Vercel.
 
 ## Docker workflow
 

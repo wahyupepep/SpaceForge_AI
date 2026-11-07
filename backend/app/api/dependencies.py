@@ -1,7 +1,9 @@
 from typing import Annotated
+from uuid import UUID
 
-from fastapi import Cookie, Depends
+from fastapi import Cookie, Depends, Request
 from openai import AsyncOpenAI
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.design import (
@@ -16,10 +18,13 @@ from app.agents.quality import QAAnalystAgent, QualityAgentConfig, SAReviewerAge
 from app.agents.requirement_analyst import RequirementAnalystAgent, RequirementAnalystConfig
 from app.agents.solution_analyst import SolutionAnalyst, SolutionAnalystConfig
 from app.core.config import settings
-from app.db.session import get_db_session
+from app.core.errors import NotFoundError
+from app.db.session import async_session_factory, get_db_session
+from app.integrations.database_file_storage import DatabaseFileStorageService
 from app.integrations.local_file_storage import LocalFileStorageService
 from app.integrations.openai_llm import OpenAILLMService
 from app.models.auth import User
+from app.models.project import Project
 from app.repositories.analysis import RequirementAnalysisRepository
 from app.repositories.artifacts import ArtifactRepository
 from app.repositories.handoff import HandoffRepository
@@ -29,10 +34,11 @@ from app.repositories.quality import QualityRepository
 from app.repositories.requirements import RequirementRepository
 from app.repositories.solution import SolutionRepository
 from app.services.artifacts import ArtifactService
-from app.services.auth import SESSION_COOKIE, AuthService
+from app.services.auth import SESSION_COOKIE, AuthError, AuthService
 from app.services.design_generation import DesignGenerationService
 from app.services.development_handoff import DevelopmentHandoffService
 from app.services.discovery_analysis import DiscoveryAnalysisService
+from app.services.file_storage import FileStorageService
 from app.services.orchestrator import SAOrchestratorService
 from app.services.projects import ProjectService
 from app.services.quality_gate import QualityGateService
@@ -59,11 +65,39 @@ def get_auth_service(
     return AuthService(session)
 
 
+def get_file_storage_service() -> FileStorageService:
+    if settings.file_storage_backend == "database":
+        return DatabaseFileStorageService(async_session_factory)
+    return LocalFileStorageService(settings.file_storage_root)
+
+
 async def get_optional_current_user(
     service: Annotated[AuthService, Depends(get_auth_service)],
     token: Annotated[str | None, Cookie(alias=SESSION_COOKIE)] = None,
 ) -> User | None:
     return await service.current_user(token)
+
+
+async def require_project_access(
+    request: Request,
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+    current_user: Annotated[User | None, Depends(get_optional_current_user)],
+) -> None:
+    if not settings.auth_required:
+        return
+    if current_user is None:
+        raise AuthError("Sign in to continue.")
+    project_id = request.path_params.get("project_id")
+    if project_id is not None:
+        try:
+            parsed_id = UUID(str(project_id))
+        except ValueError:
+            return  # Let the route return its standard UUID validation error.
+        owned = await session.scalar(
+            select(Project.id).where(Project.id == parsed_id, Project.owner_id == current_user.id)
+        )
+        if owned is None:
+            raise NotFoundError("Project")
 
 
 def get_project_service(
@@ -74,7 +108,7 @@ def get_project_service(
         SQLAlchemyProjectRepository(
             session, owner_id=current_user.id if current_user is not None else None
         ),
-        LocalFileStorageService(settings.file_storage_root),
+        get_file_storage_service(),
     )
 
 
@@ -139,7 +173,7 @@ def get_discovery_analysis_service(
         RequirementAnalysisRepository(session),
         research_agent,
         existing_system_analyst,
-        LocalFileStorageService(settings.file_storage_root),
+        get_file_storage_service(),
     )
 
 
@@ -199,7 +233,7 @@ def get_design_generation_service(
         flow_agent,
         ui_agent,
         technical_agent,
-        LocalFileStorageService(settings.file_storage_root),
+        get_file_storage_service(),
     )
 
 
@@ -253,7 +287,7 @@ def get_quality_gate_service(
                 temperature=settings.ai_temperature,
             ),
         )
-    storage = LocalFileStorageService(settings.file_storage_root)
+    storage = get_file_storage_service()
     design_service = DesignGenerationService(
         QualityRepository(session), flow_agent, ui_agent, technical_agent, storage
     )
@@ -277,8 +311,7 @@ def get_development_handoff_service(
             llm,
             DevelopmentPlannerConfig(
                 model=(
-                    settings.openai_development_planner_model
-                    or settings.openai_reasoning_model
+                    settings.openai_development_planner_model or settings.openai_reasoning_model
                 ),
                 max_output_tokens=settings.ai_max_output_tokens,
                 temperature=settings.ai_temperature,
@@ -287,7 +320,7 @@ def get_development_handoff_service(
     return DevelopmentHandoffService(
         HandoffRepository(session),
         planner,
-        LocalFileStorageService(settings.file_storage_root),
+        get_file_storage_service(),
     )
 
 
@@ -303,4 +336,5 @@ def get_orchestrator_service(
         get_quality_gate_service(session),
         get_development_handoff_service(session),
         settings.orchestrator_lease_seconds,
+        max_stages_per_request=settings.orchestrator_max_stages_per_request,
     )

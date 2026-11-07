@@ -9,6 +9,7 @@ from app.models.project import Project, ProjectContext, ProjectEvidence
 from app.models.quality import QualityWorkflow
 from app.models.requirement import Requirement
 from app.models.solution import SolutionApproval, SolutionWorkflow
+from app.models.stored_file import StoredFileRecord
 
 __all__ = [
     "AgentExecution",
@@ -26,6 +27,7 @@ __all__ = [
     "RequirementClarification",
     "SolutionApproval",
     "SolutionWorkflow",
+    "StoredFileRecord",
     "User",
     "UserSession",
 ]

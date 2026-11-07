@@ -4,7 +4,7 @@
 
 The browser talks only to the FastAPI backend. OpenAI credentials, database credentials, and storage paths are server-side configuration loaded from environment variables. `NEXT_PUBLIC_*` values must never contain secrets.
 
-The MVP has local email/password authentication, hashed server-side sessions, and project ownership filtering. It still has no RBAC, tenant isolation, password recovery, email verification, SSO, or application rate limiting, so it must run only on a trusted network.
+The MVP has local email/password authentication and hashed server-side sessions. Production mode requires login for all project routes and checks project ownership, including nested analysis, evidence, and handoff endpoints. It still has no RBAC, organization/tenant management, password recovery, email verification, SSO, or application rate limiting. Use a trusted network or hosting-level Deployment Protection for restricted access until these controls are added.
 
 ## Implemented controls
 
@@ -23,7 +23,7 @@ Agent execution audit intentionally stores exact AI input and output for traceab
 
 ## Production checklist
 
-1. Add project-scoped RBAC, tenant isolation, account recovery/verification, secure production-cookie configuration, and rate limiting before internet exposure.
+1. Add role/organization controls, account recovery/verification, and rate limiting before unrestricted internet exposure. Production defaults enable secure cookies and require authentication; do not override those settings to development values on a public deployment.
 2. Terminate TLS at a trusted ingress and restrict API/database/storage network access.
 3. Replace all development credentials; use a secret manager or injected environment variables and rotate keys regularly.
 4. Restrict CORS to production origins and disable public API documentation if not required.
