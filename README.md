@@ -20,6 +20,8 @@ docker/    Container definitions for local development
 
 Docker Compose mounts source directories and enables reload for both applications.
 
+For production hosting, Vercel compatibility, API routing, storage, and credential handling, see [Deployment](docs/DEPLOYMENT.md).
+
 ## Run locally
 
 Backend (Python 3.12+ and PostgreSQL):
