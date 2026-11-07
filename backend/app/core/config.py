@@ -4,7 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal, Optional
 
-from pydantic import Field, SecretStr, field_validator, model_validator
+from pydantic import AliasChoices, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
@@ -29,8 +29,25 @@ class Settings(BaseSettings):
     app_name: str = "SpaceForge AI API"
     app_version: str = "0.1.0"
     app_env: str = "development"
-    database_url: str = "postgresql+asyncpg://spaceforge:spaceforge@localhost:5432/spaceforge"
-    database_url_unpooled: Optional[str] = None
+    database_url: str = Field(
+        default="postgresql+asyncpg://spaceforge:spaceforge@localhost:5432/spaceforge",
+        validation_alias=AliasChoices(
+            "DATABASE_URL",
+            "DATABASE_DATABASE_URL",
+            "DATABASE_POSTGRES_URL",
+            "POSTGRES_URL",
+            "DATABASE_POSTGRES_URL_NON_POOLING",
+        ),
+    )
+    database_url_unpooled: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "DATABASE_URL_UNPOOLED",
+            "DATABASE_DATABASE_URL_UNPOOLED",
+            "DATABASE_POSTGRES_URL_NON_POOLING",
+            "POSTGRES_URL_NON_POOLING",
+        ),
+    )
     database_pooling: bool = True
     vercel: bool = False
     backend_url: str = "http://localhost:8000"
@@ -95,6 +112,7 @@ class Settings(BaseSettings):
         env_file=("../.env", ".env"),
         env_file_encoding="utf-8",
         env_ignore_empty=True,
+        populate_by_name=True,
         extra="ignore",
     )
 

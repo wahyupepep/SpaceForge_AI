@@ -23,6 +23,8 @@ Gunakan database/branch terpisah untuk Preview, misalnya melalui dukungan branch
 | `BACKEND_URL` | Jangan diisi manual pada Vercel Services; service binding menyediakannya otomatis. |
 | `NEXT_PUBLIC_API_BASE_URL` | Tidak perlu diisi; default `/api/v1` mengakses API dalam domain frontend. Hapus override `localhost` lama jika ada. |
 
+Jika integrasi Neon memakai Custom Prefix `DATABASE`, prefix tersebut dapat ditambahkan ke nama variable bawaan, misalnya `DATABASE_DATABASE_URL` atau `DATABASE_POSTGRES_URL_NON_POOLING`. Backend juga menerima nama-nama tersebut secara otomatis, sehingga credential tidak perlu disalin atau diubah di dashboard. `DATABASE_URL` tetap diprioritaskan bila diisi secara eksplisit; URL langsung dengan suffix `_UNPOOLED` atau `_NON_POOLING` dipakai untuk migrasi.
+
 Jangan mengimpor seluruh `.env` Docker ke Vercel. Nilai seperti `db`, `http://backend:8000`, `/data/files`, dan cookie development tidak sesuai dengan deployment cloud.
 
 Saat `VERCEL=1` disediakan platform, backend memakai default berikut jika variable terkait tidak di-override:
