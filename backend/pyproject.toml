@@ -28,6 +28,12 @@ dev = [
   "ruff>=0.9,<1.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app", "app.*"]
+exclude = ["app.tests", "app.tests.*"]
+namespaces = false
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["app/tests"]
