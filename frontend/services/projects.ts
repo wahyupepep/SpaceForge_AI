@@ -1,6 +1,6 @@
 import { apiClient, ApiClient } from "@/services/api-client";
 
-import type { Project, ProjectInput } from "@/types/api";
+import type { Project, ProjectEvidence, ProjectInput } from "@/types/api";
 
 export class ProjectsService {
   constructor(private readonly client: ApiClient = apiClient) {}
@@ -32,6 +32,25 @@ export class ProjectsService {
 
   delete(projectId: string): Promise<void> {
     return this.client.request<void>(`/projects/${projectId}`, { method: "DELETE" });
+  }
+
+  listEvidence(projectId: string): Promise<ProjectEvidence[]> {
+    return this.client.request<ProjectEvidence[]>(`/projects/${projectId}/evidence`, {
+      cache: "no-store",
+    });
+  }
+
+  uploadEvidence(projectId: string, payload: FormData): Promise<ProjectEvidence> {
+    return this.client.request<ProjectEvidence>(`/projects/${projectId}/evidence`, {
+      method: "POST",
+      body: payload,
+    });
+  }
+
+  deleteEvidence(projectId: string, evidenceId: string): Promise<void> {
+    return this.client.request<void>(`/projects/${projectId}/evidence/${evidenceId}`, {
+      method: "DELETE",
+    });
   }
 }
 

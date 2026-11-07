@@ -1,11 +1,16 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile, status
 
 from app.api.dependencies import get_project_service
 from app.schemas.error import ErrorResponse
-from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
+from app.schemas.project import (
+    ProjectCreate,
+    ProjectEvidenceResponse,
+    ProjectResponse,
+    ProjectUpdate,
+)
 from app.services.projects import ProjectService
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -74,3 +79,60 @@ async def submit_project_for_analysis(
 async def delete_project(project_id: UUID, service: ProjectServiceDependency) -> Response:
     await service.delete(project_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/{project_id}/evidence", response_model=list[ProjectEvidenceResponse])
+async def list_project_evidence(
+    project_id: UUID, service: ProjectServiceDependency
+) -> list[ProjectEvidenceResponse]:
+    return await service.list_evidence(project_id)
+
+
+@router.post(
+    "/{project_id}/evidence",
+    response_model=ProjectEvidenceResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_project_evidence(
+    project_id: UUID,
+    service: ProjectServiceDependency,
+    category: Annotated[str, Form()],
+    title: Annotated[str, Form(min_length=1, max_length=200)],
+    file: Annotated[UploadFile, File()],
+    description: Annotated[str | None, Form(max_length=2000)] = None,
+) -> ProjectEvidenceResponse:
+    content = await file.read()
+    return await service.add_evidence(
+        project_id,
+        category=category,
+        title=title,
+        description=description,
+        filename=file.filename or "evidence",
+        content_type=file.content_type or "application/octet-stream",
+        content=content,
+    )
+
+
+@router.delete(
+    "/{project_id}/evidence/{evidence_id}", status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_project_evidence(
+    project_id: UUID, evidence_id: UUID, service: ProjectServiceDependency
+) -> Response:
+    await service.delete_evidence(project_id, evidence_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/{project_id}/evidence/{evidence_id}/download")
+async def download_project_evidence(
+    project_id: UUID, evidence_id: UUID, service: ProjectServiceDependency
+) -> Response:
+    content, content_type, filename = await service.get_evidence_content(
+        project_id, evidence_id
+    )
+    safe_filename = filename.replace('"', "")
+    return Response(
+        content=content,
+        media_type=content_type,
+        headers={"Content-Disposition": f'inline; filename="{safe_filename}"'},
+    )

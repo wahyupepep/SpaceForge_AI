@@ -69,6 +69,7 @@ SOLUTION_SYSTEM_PROMPT = "\n".join(
         "the note while preserving supported facts and AS-IS. Return a complete replacement "
         "artifact, not a patch.",
         "Do not invent facts. Put uncertain items in assumptions or risks.",
+        "Write every user-facing text field in clear Indonesian. Keep enum values, identifiers, URLs, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )

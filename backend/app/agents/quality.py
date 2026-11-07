@@ -110,6 +110,7 @@ QA_SYSTEM_PROMPT = "\n".join(
         "a requirement. Do not invent product behavior or implementation.",
         "When revision_feedback is present, correct the cited issues while preserving valid "
         "coverage.",
+        "Write every user-facing test and acceptance text field in clear Indonesian. Keep enum values, identifiers, URLs, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )
@@ -127,6 +128,7 @@ REVIEW_SYSTEM_PROMPT = "\n".join(
         "API_SPECIFICATION, TEST_SCENARIO, or ACCEPTANCE_CRITERIA.",
         "For every issue provide artifact, issue, severity, reason, and a specific recommended "
         "revision. Do not redesign artifacts yourself.",
+        "Write every user-facing review text field in clear Indonesian. Keep enum values, identifiers, URLs, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )

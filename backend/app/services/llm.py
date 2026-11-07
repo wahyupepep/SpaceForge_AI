@@ -16,6 +16,7 @@ class LLMRequest:
     max_output_tokens: int
     temperature: float | None = None
     tools: tuple[dict[str, Any], ...] = ()
+    image_urls: tuple[str, ...] = ()
     agent_name: str = "UNSPECIFIED_AGENT"
 
 

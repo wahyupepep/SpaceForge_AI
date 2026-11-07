@@ -1,21 +1,21 @@
 import type { ProjectStatus, ProjectType } from "@/types/api";
 
 export const projectTypeLabels: Record<ProjectType, string> = {
-  NEW_SYSTEM: "New system",
-  NEW_FEATURE: "New feature",
-  ENHANCEMENT: "Enhancement",
+  NEW_SYSTEM: "Sistem baru",
+  NEW_FEATURE: "Fitur baru",
+  ENHANCEMENT: "Peningkatan produk",
 };
 
 export const projectTypeDescriptions: Record<ProjectType, string> = {
-  NEW_SYSTEM: "Build a new system as a whole.",
-  NEW_FEATURE: "Add a new menu, module, or capability.",
-  ENHANCEMENT: "Change an existing feature or process. AS-IS context is mandatory.",
+  NEW_SYSTEM: "Membangun sistem baru secara utuh.",
+  NEW_FEATURE: "Menambahkan kemampuan baru beserta batasan dan dependensinya.",
+  ENHANCEMENT: "Meningkatkan produk yang sudah ada. Konteks AS-IS dan referensi nyata wajib disertakan.",
 };
 
 export const projectStatusLabels: Record<ProjectStatus, string> = {
-  DRAFT: "Draft",
-  CONTEXT_INCOMPLETE: "Context incomplete",
-  READY_FOR_ANALYSIS: "Ready for analysis",
+  DRAFT: "Draf",
+  CONTEXT_INCOMPLETE: "Konteks belum lengkap",
+  READY_FOR_ANALYSIS: "Siap dianalisis",
 };
 
 export const projectStatusClasses: Record<ProjectStatus, string> = {
@@ -25,10 +25,11 @@ export const projectStatusClasses: Record<ProjectStatus, string> = {
 };
 
 export const contextFieldLabels: Record<string, string> = {
-  current_flow: "Current flow",
-  current_actors: "Current actors",
-  current_rules: "Current business rules",
-  current_problem: "Current problem",
-  requested_change: "Requested change",
+  current_flow: "Alur saat ini",
+  current_actors: "Aktor saat ini",
+  current_rules: "Aturan bisnis saat ini",
+  current_problem: "Masalah saat ini",
+  requested_change: "Perubahan yang diminta",
+  reference_evidence: "Screenshot UI, source code, atau referensi sistem yang sudah ada",
 };
 

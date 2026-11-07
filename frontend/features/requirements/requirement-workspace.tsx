@@ -9,6 +9,7 @@ import { artifactsService } from "@/services/artifacts";
 import { discoveryAnalysisService } from "@/services/discovery-analysis";
 import { designGenerationService } from "@/services/design-generation";
 import { env } from "@/lib/env";
+import { uiLabel } from "@/lib/ui-labels";
 import { requirementAnalysisService } from "@/services/requirement-analysis";
 import { qualityGateService } from "@/services/quality-gate";
 import { requirementsService } from "@/services/requirements";
@@ -26,7 +27,7 @@ const lines = (value: FormDataEntryValue | null) =>
     .filter(Boolean);
 
 const errorMessage = (error: unknown) =>
-  error instanceof ApiClientError ? error.message : "The request could not be completed.";
+  error instanceof ApiClientError ? error.message : "Permintaan tidak dapat diselesaikan.";
 
 function getResearchSources(artifact: Artifact) {
   if (artifact.artifact_type !== "RESEARCH" || !Array.isArray(artifact.content_json.sources)) {
@@ -107,7 +108,7 @@ export function RequirementWorkspace({
   }
 
   async function deleteRequirement(requirementId: string) {
-    if (!window.confirm("Delete this requirement? Linked artifacts will keep their audit history.")) return;
+    if (!window.confirm("Hapus requirement ini? Artefak terkait tetap disimpan untuk riwayat audit.")) return;
     setError(null);
     try {
       await requirementsService.delete(project.id, requirementId);
@@ -211,12 +212,12 @@ export function RequirementWorkspace({
     setError(null);
     const form = new FormData(event.currentTarget);
     const evidenceFields: Array<[ExistingEvidenceType, string, string]> = [
-      ["USER_DESCRIPTION", "User description", "user_description"],
-      ["SOURCE_CODE_METADATA", "Source code metadata", "source_code_metadata"],
-      ["DATABASE_SCHEMA", "Database schema", "database_schema"],
-      ["API_DOCUMENTATION", "API documentation", "api_documentation"],
-      ["EXISTING_DOCUMENTATION", "Existing documentation", "existing_documentation"],
-      ["SCREENSHOT_DESCRIPTION", "Screenshot description", "screenshot_description"],
+      ["USER_DESCRIPTION", "Deskripsi pengguna", "user_description"],
+      ["SOURCE_CODE_METADATA", "Metadata source code", "source_code_metadata"],
+      ["DATABASE_SCHEMA", "Skema database", "database_schema"],
+      ["API_DOCUMENTATION", "Dokumentasi API", "api_documentation"],
+      ["EXISTING_DOCUMENTATION", "Dokumentasi lama", "existing_documentation"],
+      ["SCREENSHOT_DESCRIPTION", "Deskripsi screenshot", "screenshot_description"],
     ];
     const evidence: ExistingEvidenceInput[] = evidenceFields.flatMap(
       ([source_type, title, field]) => {
@@ -348,39 +349,42 @@ export function RequirementWorkspace({
   }
 
   return (
-    <section className="mt-10 border-t border-ink/10 pt-10">
+    <section className="mt-9 border-t border-ink/10 pt-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Requirement workspace</p>
-          <h2 className="mt-2 text-2xl font-bold">Capture intent before designing a solution</h2>
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-accent">Tahap analisis</p>
+          <h2 className="mt-2 text-xl font-semibold">Requirement</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-ink/60">
-            Store the original request and known facts. Baselines are structured manually; no AI or solution generation runs in this phase.
+            Sistem akan memeriksa ruang lingkup, aktor, aturan, pengecualian, data, integrasi, dan bukti penerimaan sebelum requirement dinyatakan siap.
           </p>
         </div>
-        <span className="text-sm font-semibold text-ink/50">{requirements.length} requirement{requirements.length === 1 ? "" : "s"}</span>
+        <span className="text-sm font-semibold text-ink/50">{requirements.length} requirement</span>
       </div>
 
       {error ? <div role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
 
       {!isReady ? (
         <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-          <p className="font-semibold">Requirement intake is locked.</p>
-          <p className="mt-1 leading-6">Complete the project context and submit it for analysis first.</p>
+          <p className="font-semibold">Pengisian requirement masih terkunci.</p>
+          <p className="mt-1 leading-6">Lengkapi konteks proyek dan kirim untuk dianalisis terlebih dahulu.</p>
         </div>
       ) : (
-        <form onSubmit={createRequirement} className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 shadow-sm sm:p-8">
-          <h3 className="text-lg font-bold">Add a requirement</h3>
+        <details open={!requirements.length} className="mt-6 border-y border-ink/10 bg-white/45">
+          <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold text-accent">+ Tambah requirement</summary>
+        <form onSubmit={createRequirement} className="border-t border-ink/10 p-5 sm:p-6">
+          <h3 className="text-base font-semibold">Permintaan awal stakeholder</h3>
           <div className="mt-5 grid gap-5 md:grid-cols-2">
-            <label className="text-sm font-semibold">Title<input required name="title" maxLength={200} className={fieldClass} placeholder="Tiered approval" /></label>
-            <label className="text-sm font-semibold">Business objective<input name="business_objective" className={fieldClass} placeholder="Reduce approval risk" /></label>
-            <label className="text-sm font-semibold md:col-span-2">Raw requirement<textarea required name="raw_requirement" rows={4} className={fieldClass} placeholder="Saya ingin menambahkan proses approval bertingkat berdasarkan nominal." /></label>
-            <label className="text-sm font-semibold">Actors <span className="font-normal text-ink/45">(one per line)</span><textarea name="actors" rows={3} className={fieldClass} /></label>
-            <label className="text-sm font-semibold">Known rules <span className="font-normal text-ink/45">(one per line)</span><textarea name="known_rules" rows={3} className={fieldClass} /></label>
-            <label className="text-sm font-semibold">Constraints <span className="font-normal text-ink/45">(one per line)</span><textarea name="constraints" rows={3} className={fieldClass} /></label>
-            <label className="text-sm font-semibold">Dependencies <span className="font-normal text-ink/45">(one per line)</span><textarea name="dependencies" rows={3} className={fieldClass} /></label>
+            <label className="text-sm font-semibold">Judul<input required name="title" maxLength={200} className={fieldClass} placeholder="Persetujuan pembelian berjenjang" /></label>
+            <label className="text-sm font-semibold">Tujuan bisnis<input name="business_objective" className={fieldClass} placeholder="Mengurangi risiko persetujuan" /></label>
+            <label className="text-sm font-semibold md:col-span-2">Permintaan awal<textarea required name="raw_requirement" rows={4} className={fieldClass} placeholder="Jelaskan kebutuhan dengan bahasa stakeholder. Belum harus sempurna karena sistem akan menggali informasi yang kurang." /></label>
+            <label className="text-sm font-semibold">Aktor <span className="font-normal text-ink/45">(satu per baris)</span><textarea name="actors" rows={3} className={fieldClass} /></label>
+            <label className="text-sm font-semibold">Aturan yang diketahui <span className="font-normal text-ink/45">(satu per baris)</span><textarea name="known_rules" rows={3} className={fieldClass} /></label>
+            <label className="text-sm font-semibold">Batasan <span className="font-normal text-ink/45">(satu per baris)</span><textarea name="constraints" rows={3} className={fieldClass} /></label>
+            <label className="text-sm font-semibold">Dependensi <span className="font-normal text-ink/45">(satu per baris)</span><textarea name="dependencies" rows={3} className={fieldClass} /></label>
           </div>
-          <div className="mt-5 flex justify-end"><button disabled={submitting} className="rounded-xl bg-ink px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? "Saving…" : "Save requirement"}</button></div>
+          <div className="mt-5 flex justify-end"><button disabled={submitting} className="rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{submitting ? "Menyimpan…" : "Simpan dan mulai penggalian"}</button></div>
         </form>
+        </details>
       )}
 
       <div className="mt-8 space-y-4">
@@ -400,127 +404,145 @@ export function RequirementWorkspace({
           const acceptanceArtifact = artifacts.find((item) => item.requirement_id === requirement.id && item.artifact_type === "ACCEPTANCE_CRITERIA");
           const qualityWorkflow = qualityWorkflows.find((item) => item.requirement_id === requirement.id);
           return (
-            <article key={requirement.id} className="rounded-2xl border border-ink/10 bg-white p-6 shadow-sm">
+            <article key={requirement.id} className="border border-ink/10 bg-white/65 p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <div className="flex flex-wrap items-center gap-2"><h3 className="font-bold">{requirement.title}</h3><span className="rounded-full bg-ink/5 px-2.5 py-1 text-[11px] font-semibold">{requirement.status}</span>{requirement.analysis_readiness ? <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${requirement.analysis_readiness === "READY" ? "bg-emerald-50 text-emerald-700" : requirement.analysis_readiness === "BLOCKED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>{requirement.analysis_readiness.replaceAll("_", " ")}</span> : null}</div>
+                  <div className="flex flex-wrap items-center gap-2"><h3 className="font-bold">{requirement.title}</h3><span className="rounded-full bg-ink/5 px-2.5 py-1 text-[11px] font-semibold">{uiLabel(requirement.status)}</span>{requirement.analysis_readiness ? <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${requirement.analysis_readiness === "READY" ? "bg-emerald-50 text-emerald-700" : requirement.analysis_readiness === "BLOCKED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>{uiLabel(requirement.analysis_readiness)}</span> : null}</div>
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-ink/70">{requirement.raw_requirement}</p>
-                  {requirement.business_objective ? <p className="mt-2 text-sm"><span className="font-semibold">Objective:</span> {requirement.business_objective}</p> : null}
+                  {requirement.business_objective ? <p className="mt-2 text-sm"><span className="font-semibold">Tujuan:</span> {requirement.business_objective}</p> : null}
                 </div>
-                <div className="flex shrink-0 gap-2">
-                  <button disabled={analyzingId === requirement.id || pendingClarifications.length > 0} onClick={() => analyzeRequirement(requirement.id)} className="rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{analyzingId === requirement.id ? "Analyzing…" : "Analyze with AI"}</button>
-                  {!baseline ? <button onClick={() => setBaselineFor(baselineFor === requirement.id ? null : requirement.id)} className="rounded-lg border border-accent px-3 py-2 text-xs font-semibold text-accent">Structure baseline</button> : <span className="rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">Baseline v{baseline.version}</span>}
-                  <button onClick={() => deleteRequirement(requirement.id)} className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600">Delete</button>
+                <div className="flex shrink-0 items-start gap-2">
+                  {requirement.analysis_readiness === "READY" ? <Link href={`/projects/${project.id}/requirements/${requirement.id}/outputs`} className="rounded-lg bg-[#246b5a] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#1d584a]">Lihat output</Link> : <button disabled={analyzingId === requirement.id || pendingClarifications.length > 0} onClick={() => analyzeRequirement(requirement.id)} className="rounded-lg bg-accent px-3.5 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{analyzingId === requirement.id ? "Memeriksa…" : requirementClarifications.length ? "Lanjutkan penggalian" : "Mulai penggalian"}</button>}
+                  <details className="relative"><summary aria-label="Opsi requirement" className="cursor-pointer list-none rounded-lg border border-ink/15 bg-white px-3 py-2 text-xs font-bold text-ink/50">•••</summary><div className="absolute right-0 z-10 mt-2 w-44 border border-ink/10 bg-white p-2 shadow-xl">{!baseline ? <button onClick={() => setBaselineFor(baselineFor === requirement.id ? null : requirement.id)} className="block w-full rounded-md px-3 py-2 text-left text-xs font-semibold hover:bg-canvas">Susun baseline manual</button> : <p className="px-3 py-2 text-xs text-ink/45">Baseline v{baseline.version}</p>}<button onClick={() => deleteRequirement(requirement.id)} className="block w-full rounded-md px-3 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50">Hapus requirement</button></div></details>
                 </div>
               </div>
 
-              <OrchestratorDashboard
+              {orchestratorWorkflows.find((item) => item.requirement_id === requirement.id) ? <OrchestratorDashboard
                 projectId={project.id}
                 requirementId={requirement.id}
                 workflow={orchestratorWorkflows.find((item) => item.requirement_id === requirement.id)}
-              />
+              /> : null}
 
               {pendingClarifications.length ? (
                 <form onSubmit={(event) => answerClarifications(event, requirement.id, pendingClarifications)} className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5">
-                  <h4 className="font-bold text-amber-900">Clarification required</h4>
-                  <p className="mt-1 text-sm text-amber-800">The workflow is paused. Answer every question to automatically run the analysis again.</p>
+                  <h4 className="font-bold text-amber-900">Pertanyaan klarifikasi</h4>
+                  <p className="mt-1 text-sm text-amber-800">Jawaban Anda dipakai untuk menutup celah requirement. Berikan contoh nyata dan nyatakan jika informasi memang belum diketahui.</p>
                   <div className="mt-4 space-y-4">
                     {pendingClarifications.map((item) => (
                       <label key={item.id} className="block text-sm font-semibold text-ink">
                         {item.question}
-                        <textarea required name={`answer-${item.id}`} rows={3} className={fieldClass} placeholder="Provide a specific answer." />
+                        <textarea required name={`answer-${item.id}`} rows={3} className={fieldClass} placeholder="Berikan jawaban yang spesifik." />
                       </label>
                     ))}
                   </div>
-                  <div className="mt-4 flex justify-end"><button disabled={analyzingId === requirement.id} className="rounded-xl bg-amber-700 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{analyzingId === requirement.id ? "Re-analyzing…" : "Submit answers and re-analyze"}</button></div>
+                  <div className="mt-4 flex justify-end"><button disabled={analyzingId === requirement.id} className="rounded-xl bg-amber-700 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{analyzingId === requirement.id ? "Memeriksa jawaban…" : "Kirim jawaban untuk ditinjau"}</button></div>
                 </form>
+              ) : null}
+
+              {baseline ? (
+                <section className="mt-6 rounded-xl border border-sky-200 bg-sky-50/60 p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-sky-800">Requirement baseline · v{baseline.version}</p>
+                      <h4 className="mt-1 font-bold">{String(baseline.content_json.feature ?? requirement.title)}</h4>
+                    </div>
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${baseline.status === "VALIDATED" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-900"}`}>{baseline.status === "VALIDATED" ? "Penggalian selesai" : "Penggalian berlangsung"}</span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-ink/70">{String(baseline.content_json.problem_statement ?? "")}</p>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <ArtifactSection title="Kebutuhan yang diketahui" items={stringList(baseline.content_json, "known_requirements")} />
+                    <ArtifactSection title="Aturan bisnis" items={stringList(baseline.content_json, "business_rules")} />
+                    <ArtifactSection title="Asumsi yang perlu diverifikasi" items={stringList(baseline.content_json, "assumptions")} />
+                    <ArtifactSection title="Informasi yang belum diketahui" items={stringList(baseline.content_json, "unknown_information")} />
+                  </div>
+                </section>
               ) : null}
 
               {requirement.analysis_readiness === "READY" ? (
                 <div className="mt-6 border-t border-ink/10 pt-5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <button disabled={specialistRun !== null} onClick={() => runResearch(requirement.id)} className="rounded-lg bg-sky-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{specialistRun === `${requirement.id}:research` ? "Researching…" : researchArtifact ? `Refresh research · v${researchArtifact.version}` : "Run research"}</button>
-                    <button disabled={specialistRun !== null} onClick={() => setExistingFor(existingFor === requirement.id ? null : requirement.id)} className="rounded-lg border border-violet-300 px-3 py-2 text-xs font-semibold text-violet-700 disabled:opacity-50">{existingArtifact ? `Existing analysis · v${existingArtifact.version}` : "Analyze existing system"}</button>
-                    {!solutionWorkflow ? <button disabled={!researchArtifact || solutionRun !== null} onClick={() => generateSolution(requirement.id)} className="rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{solutionRun === `${requirement.id}:generate` ? "Generating…" : "Generate solution"}</button> : null}
+                    <button disabled={specialistRun !== null} onClick={() => runResearch(requirement.id)} className="rounded-lg bg-sky-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{specialistRun === `${requirement.id}:research` ? "Melakukan riset…" : researchArtifact ? `Perbarui riset · v${researchArtifact.version}` : "Jalankan riset"}</button>
+                    <button disabled={specialistRun !== null} onClick={() => setExistingFor(existingFor === requirement.id ? null : requirement.id)} className="rounded-lg border border-violet-300 px-3 py-2 text-xs font-semibold text-violet-700 disabled:opacity-50">{existingArtifact ? `Analisis sistem lama · v${existingArtifact.version}` : "Analisis sistem lama"}</button>
+                    {!solutionWorkflow ? <button disabled={!researchArtifact || solutionRun !== null} onClick={() => generateSolution(requirement.id)} className="rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{solutionRun === `${requirement.id}:generate` ? "Membuat solusi…" : "Buat rancangan solusi"}</button> : null}
                   </div>
                   {existingFor === requirement.id ? (
                     <form onSubmit={(event) => analyzeExistingSystem(event, requirement.id)} className="mt-4 rounded-xl border border-violet-200 bg-violet-50/60 p-5">
-                      <h4 className="font-bold">Existing-system evidence</h4>
-                      <p className="mt-1 text-sm text-ink/55">Add only evidence you have. Project AS-IS context and the latest Research Artifact are included automatically.</p>
+                      <h4 className="font-bold">Referensi sistem yang sudah ada</h4>
+                      <p className="mt-1 text-sm text-ink/55">Referensi proyek, konteks AS-IS, dan hasil riset terbaru disertakan otomatis. Tambahkan hanya fakta yang belum tersedia di workspace.</p>
                       <div className="mt-4 grid gap-4 md:grid-cols-2">
                         {[
-                          ["user_description", "User description"],
-                          ["source_code_metadata", "Source code metadata"],
-                          ["database_schema", "Database schema"],
-                          ["api_documentation", "API documentation"],
-                          ["existing_documentation", "Existing documentation"],
-                          ["screenshot_description", "Screenshot description"],
-                        ].map(([name, label]) => <label key={name} className="text-sm font-semibold">{label}<textarea name={name} rows={3} className={fieldClass} placeholder={`Paste ${label.toLowerCase()} if available.`} /></label>)}
+                          ["user_description", "Deskripsi pengguna"],
+                          ["source_code_metadata", "Metadata source code"],
+                          ["database_schema", "Skema database"],
+                          ["api_documentation", "Dokumentasi API"],
+                          ["existing_documentation", "Dokumentasi lama"],
+                          ["screenshot_description", "Deskripsi screenshot"],
+                        ].map(([name, label]) => <label key={name} className="text-sm font-semibold">{label}<textarea name={name} rows={3} className={fieldClass} placeholder={`Tempel ${label.toLowerCase()} jika tersedia.`} /></label>)}
                       </div>
-                      <div className="mt-4 flex justify-end"><button disabled={specialistRun !== null} className="rounded-xl bg-violet-700 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{specialistRun === `${requirement.id}:existing` ? "Analyzing…" : "Run existing-system analysis"}</button></div>
+                      <div className="mt-4 flex justify-end"><button disabled={specialistRun !== null} className="rounded-xl bg-violet-700 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{specialistRun === `${requirement.id}:existing` ? "Menganalisis…" : "Jalankan analisis sistem lama"}</button></div>
                     </form>
                   ) : null}
 
                   {solutionWorkflow && solutionContent ? (
                     <section className="mt-5 rounded-2xl border border-accent/20 bg-accent/[0.03] p-5">
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">Solution v{solutionWorkflow.current_version}</p><h4 className="mt-1 font-bold">{String(solutionContent.summary ?? "Proposed solution")}</h4></div>
-                        <span className={`rounded-full px-3 py-1 text-xs font-bold ${solutionWorkflow.status === "APPROVED" ? "bg-emerald-100 text-emerald-800" : solutionWorkflow.status === "REJECTED" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-900"}`}>{solutionWorkflow.status.replaceAll("_", " ")}</span>
+                        <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">Solusi v{solutionWorkflow.current_version}</p><h4 className="mt-1 font-bold">{String(solutionContent.summary ?? "Rancangan solusi")}</h4></div>
+                        <span className={`rounded-full px-3 py-1 text-xs font-bold ${solutionWorkflow.status === "APPROVED" ? "bg-emerald-100 text-emerald-800" : solutionWorkflow.status === "REJECTED" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-900"}`}>{uiLabel(solutionWorkflow.status)}</span>
                       </div>
                       <div className="mt-5 grid gap-5 md:grid-cols-2">
                         <ArtifactSection title="Requirement" items={stringList(baseline?.content_json ?? {}, "known_requirements")} />
-                        <ArtifactSection title="Research" items={stringList(researchArtifact?.content_json ?? {}, "common_practices")} />
+                        <ArtifactSection title="Riset" items={stringList(researchArtifact?.content_json ?? {}, "common_practices")} />
                         <ArtifactSection title="AS-IS" items={stringList(solutionContent, "as_is")} />
-                        <ArtifactSection title="Scope" items={stringList(solutionContent, "scope")} />
-                        <ArtifactSection title="Proposed solution" items={stringList(solutionContent, "proposed_process")} />
+                        <ArtifactSection title="Ruang lingkup" items={stringList(solutionContent, "scope")} />
+                        <ArtifactSection title="Solusi yang diusulkan" items={stringList(solutionContent, "proposed_process")} />
                         <ArtifactSection title="TO-BE" items={stringList(solutionContent, "to_be")} />
-                        <ArtifactSection title="Functional requirements" items={stringList(solutionContent, "functional_requirements")} />
-                        <ArtifactSection title="Risks" items={stringList(solutionContent, "risks")} />
+                        <ArtifactSection title="Kebutuhan fungsional" items={stringList(solutionContent, "functional_requirements")} />
+                        <ArtifactSection title="Risiko" items={stringList(solutionContent, "risks")} />
                       </div>
                       {solutionWorkflow.status === "WAITING_USER_APPROVAL" ? (
                         <div className="mt-6 border-t border-accent/15 pt-5">
-                          <p className="text-sm font-semibold">Human approval required</p>
-                          <p className="mt-1 text-xs leading-5 text-ink/50">Technical design remains locked until this exact Solution version is approved.</p>
+                          <p className="text-sm font-semibold">Persetujuan pengguna diperlukan</p>
+                          <p className="mt-1 text-xs leading-5 text-ink/50">Desain teknis tetap terkunci sampai versi solusi ini disetujui.</p>
                           <div className="mt-4 flex flex-wrap gap-2">
-                            <button disabled={solutionRun !== null} onClick={() => actOnSolution(requirement.id, solutionWorkflow, "APPROVE")} className="rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">Approve</button>
-                            <button disabled={solutionRun !== null} onClick={() => setRevisionFor(revisionFor === requirement.id ? null : requirement.id)} className="rounded-lg border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-800 disabled:opacity-50">Request revision</button>
-                            <button disabled={solutionRun !== null} onClick={() => actOnSolution(requirement.id, solutionWorkflow, "REJECT")} className="rounded-lg border border-red-200 px-4 py-2 text-xs font-semibold text-red-700 disabled:opacity-50">Reject</button>
+                            <button disabled={solutionRun !== null} onClick={() => actOnSolution(requirement.id, solutionWorkflow, "APPROVE")} className="rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">Setujui</button>
+                            <button disabled={solutionRun !== null} onClick={() => setRevisionFor(revisionFor === requirement.id ? null : requirement.id)} className="rounded-lg border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-800 disabled:opacity-50">Minta revisi</button>
+                            <button disabled={solutionRun !== null} onClick={() => actOnSolution(requirement.id, solutionWorkflow, "REJECT")} className="rounded-lg border border-red-200 px-4 py-2 text-xs font-semibold text-red-700 disabled:opacity-50">Tolak</button>
                           </div>
-                          {revisionFor === requirement.id ? <form onSubmit={(event) => requestRevision(event, requirement.id, solutionWorkflow)} className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4"><label className="text-sm font-semibold">Revision note<textarea required name="revision_note" rows={3} className={fieldClass} placeholder="Explain the precise change required." /></label><div className="mt-3 flex justify-end"><button disabled={solutionRun !== null} className="rounded-lg bg-amber-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">Submit revision and regenerate</button></div></form> : null}
+                          {revisionFor === requirement.id ? <form onSubmit={(event) => requestRevision(event, requirement.id, solutionWorkflow)} className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4"><label className="text-sm font-semibold">Catatan revisi<textarea required name="revision_note" rows={3} className={fieldClass} placeholder="Jelaskan perubahan yang diperlukan secara spesifik." /></label><div className="mt-3 flex justify-end"><button disabled={solutionRun !== null} className="rounded-lg bg-amber-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">Kirim revisi dan buat ulang</button></div></form> : null}
                         </div>
                       ) : null}
-                      {solutionWorkflow.status === "REVISION_REQUESTED" ? <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4"><p className="text-sm font-semibold text-amber-900">Revision is pending after an interrupted agent run.</p><p className="mt-1 text-xs leading-5 text-amber-800">The original revision note is preserved and will be reused.</p><button disabled={solutionRun !== null} onClick={() => retryRevision(requirement.id)} className="mt-3 rounded-lg bg-amber-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">{solutionRun === `${requirement.id}:retry` ? "Retrying…" : "Retry revision"}</button></div> : null}
-                      {solutionWorkflow.approvals.length ? <div className="mt-5 border-t border-ink/10 pt-4"><p className="text-xs font-semibold uppercase tracking-wide text-ink/45">Approval history</p><ul className="mt-2 space-y-1 text-xs text-ink/55">{solutionWorkflow.approvals.map((approval) => <li key={approval.id}>{approval.action.replaceAll("_", " ")} by {approval.acted_by}{approval.note ? ` — ${approval.note}` : ""}</li>)}</ul></div> : null}
+                      {solutionWorkflow.status === "REVISION_REQUESTED" ? <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4"><p className="text-sm font-semibold text-amber-900">Revisi tertunda karena proses analis terhenti.</p><p className="mt-1 text-xs leading-5 text-amber-800">Catatan revisi sebelumnya tetap tersimpan dan akan digunakan kembali.</p><button disabled={solutionRun !== null} onClick={() => retryRevision(requirement.id)} className="mt-3 rounded-lg bg-amber-700 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">{solutionRun === `${requirement.id}:retry` ? "Mencoba kembali…" : "Ulangi revisi"}</button></div> : null}
+                      {solutionWorkflow.approvals.length ? <div className="mt-5 border-t border-ink/10 pt-4"><p className="text-xs font-semibold uppercase tracking-wide text-ink/45">Riwayat persetujuan</p><ul className="mt-2 space-y-1 text-xs text-ink/55">{solutionWorkflow.approvals.map((approval) => <li key={approval.id}>{uiLabel(approval.action)} oleh {approval.acted_by}{approval.note ? ` — ${approval.note}` : ""}</li>)}</ul></div> : null}
 
-                      {solutionWorkflow.status === "APPROVED" ? <div className="mt-6 border-t border-emerald-200 pt-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-sm font-bold text-emerald-800">Approved design stage</p><p className="mt-1 text-xs text-ink/50">Flow and technical architecture can run independently. Prototype requires a generated flow.</p></div><div className="flex flex-wrap gap-2"><button disabled={designRuns.includes(`${requirement.id}:flow`)} onClick={() => runDesign(requirement.id, "flow")} className="rounded-lg bg-indigo-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{designRuns.includes(`${requirement.id}:flow`) ? "Generating flow…" : flowArtifact ? `Refresh flow · v${flowArtifact.version}` : "Generate flow"}</button><button disabled={designRuns.includes(`${requirement.id}:prototype`) || !flowArtifact} onClick={() => runDesign(requirement.id, "prototype")} className="rounded-lg bg-fuchsia-700 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">{designRuns.includes(`${requirement.id}:prototype`) ? "Generating prototype…" : prototypeArtifact ? `Refresh prototype · v${prototypeArtifact.version}` : "Generate prototype"}</button><button disabled={designRuns.includes(`${requirement.id}:technical`)} onClick={() => runDesign(requirement.id, "technical")} className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{designRuns.includes(`${requirement.id}:technical`) ? "Designing…" : databaseArtifact && apiArtifact ? "Refresh technical design" : "Generate technical design"}</button></div></div>
+                      {solutionWorkflow.status === "APPROVED" ? <div className="mt-6 border-t border-emerald-200 pt-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-sm font-bold text-emerald-800">Tahap desain telah disetujui</p><p className="mt-1 text-xs text-ink/50">Alur dan arsitektur teknis dapat dibuat terpisah. Prototipe memerlukan alur yang sudah dibuat.</p></div><div className="flex flex-wrap gap-2"><button disabled={designRuns.includes(`${requirement.id}:flow`)} onClick={() => runDesign(requirement.id, "flow")} className="rounded-lg bg-indigo-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{designRuns.includes(`${requirement.id}:flow`) ? "Membuat alur…" : flowArtifact ? `Perbarui alur · v${flowArtifact.version}` : "Buat alur"}</button><button disabled={designRuns.includes(`${requirement.id}:prototype`) || !flowArtifact} onClick={() => runDesign(requirement.id, "prototype")} className="rounded-lg bg-fuchsia-700 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">{designRuns.includes(`${requirement.id}:prototype`) ? "Membuat prototipe…" : prototypeArtifact ? `Perbarui prototipe · v${prototypeArtifact.version}` : "Buat prototipe"}</button><button disabled={designRuns.includes(`${requirement.id}:technical`)} onClick={() => runDesign(requirement.id, "technical")} className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{designRuns.includes(`${requirement.id}:technical`) ? "Merancang…" : databaseArtifact && apiArtifact ? "Perbarui desain teknis" : "Buat desain teknis"}</button></div></div>
                         {flowArtifact && typeof flowArtifact.content_json.mermaid === "string" ? <div className="mt-5"><p className="text-xs font-bold uppercase tracking-[0.14em] text-ink/45">Mermaid process flow · v{flowArtifact.version}</p><pre className="mt-2 overflow-x-auto rounded-xl bg-slate-950 p-4 text-xs leading-6 text-slate-100">{flowArtifact.content_json.mermaid}</pre></div> : null}
-                        {prototypeArtifact && Array.isArray(prototypeArtifact.content_json.screens) ? <div className="mt-5"><p className="text-xs font-bold uppercase tracking-[0.14em] text-ink/45">Browser prototypes · v{prototypeArtifact.version}</p><div className="mt-2 flex flex-wrap gap-2">{prototypeArtifact.content_json.screens.map((screen, index) => { if (typeof screen !== "object" || screen === null || !("filename" in screen) || typeof screen.filename !== "string") return null; const url = `${env.apiBaseUrl}/projects/${project.id}/requirements/${requirement.id}/ui-prototypes/${prototypeArtifact.id}/versions/${prototypeArtifact.version}/files/${screen.filename}`; return <a key={`${screen.filename}-${index}`} href={url} target="_blank" rel="noreferrer" className="rounded-lg border border-fuchsia-200 bg-white px-3 py-2 text-xs font-semibold text-fuchsia-700 hover:bg-fuchsia-50">Open {screen.filename}</a>; })}</div></div> : null}
-                        {databaseArtifact && apiArtifact ? <div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-xl border border-ink/10 bg-white p-4"><p className="text-xs font-bold uppercase tracking-wide text-ink/45">Database design</p><p className="mt-2 text-sm font-semibold">{Array.isArray(databaseArtifact.content_json.entities) ? databaseArtifact.content_json.entities.length : 0} entities · v{databaseArtifact.version}</p></div><div className="rounded-xl border border-ink/10 bg-white p-4"><p className="text-xs font-bold uppercase tracking-wide text-ink/45">API specification</p><p className="mt-2 text-sm font-semibold">{Array.isArray(apiArtifact.content_json.endpoints) ? apiArtifact.content_json.endpoints.length : 0} endpoints · v{apiArtifact.version}</p></div></div> : null}
+                        {prototypeArtifact && Array.isArray(prototypeArtifact.content_json.screens) ? <div className="mt-5"><p className="text-xs font-bold uppercase tracking-[0.14em] text-ink/45">Prototipe browser · v{prototypeArtifact.version}</p><div className="mt-2 flex flex-wrap gap-2">{prototypeArtifact.content_json.screens.map((screen, index) => { if (typeof screen !== "object" || screen === null || !("filename" in screen) || typeof screen.filename !== "string") return null; const url = `${env.apiBaseUrl}/projects/${project.id}/requirements/${requirement.id}/ui-prototypes/${prototypeArtifact.id}/versions/${prototypeArtifact.version}/files/${screen.filename}`; return <a key={`${screen.filename}-${index}`} href={url} target="_blank" rel="noreferrer" className="rounded-lg border border-fuchsia-200 bg-white px-3 py-2 text-xs font-semibold text-fuchsia-700 hover:bg-fuchsia-50">Buka {screen.filename}</a>; })}</div></div> : null}
+                        {databaseArtifact && apiArtifact ? <div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-xl border border-ink/10 bg-white p-4"><p className="text-xs font-bold uppercase tracking-wide text-ink/45">Desain database</p><p className="mt-2 text-sm font-semibold">{Array.isArray(databaseArtifact.content_json.entities) ? databaseArtifact.content_json.entities.length : 0} entitas · v{databaseArtifact.version}</p></div><div className="rounded-xl border border-ink/10 bg-white p-4"><p className="text-xs font-bold uppercase tracking-wide text-ink/45">Spesifikasi API</p><p className="mt-2 text-sm font-semibold">{Array.isArray(apiArtifact.content_json.endpoints) ? apiArtifact.content_json.endpoints.length : 0} endpoint · v{apiArtifact.version}</p></div></div> : null}
                         {flowArtifact && prototypeArtifact && databaseArtifact && apiArtifact ? (
                           <div className="mt-6 rounded-xl border border-cyan-200 bg-cyan-50/50 p-5">
                             <div className="flex flex-wrap items-center justify-between gap-3">
                               <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-800">Quality gate</p>
-                                <p className="mt-1 text-sm text-ink/60">QA generates traceable tests and Given/When/Then criteria. SA Review must pass before Development Handoff.</p>
+                                <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-800">Pemeriksaan kualitas</p>
+                                <p className="mt-1 text-sm text-ink/60">QA membuat test case dan kriteria Given/When/Then yang tertelusur. Review sistem analis harus lolos sebelum serah terima pengembangan.</p>
                               </div>
-                              {qualityWorkflow ? <span className={`rounded-full px-3 py-1 text-xs font-bold ${qualityWorkflow.status === "PASSED" && qualityWorkflow.development_handoff_allowed ? "bg-emerald-100 text-emerald-800" : qualityWorkflow.status === "REVISION_REQUIRED" || qualityWorkflow.status === "MAX_REVISIONS_REACHED" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-900"}`}>{qualityWorkflow.status.replaceAll("_", " ")}</span> : null}
+                              {qualityWorkflow ? <span className={`rounded-full px-3 py-1 text-xs font-bold ${qualityWorkflow.status === "PASSED" && qualityWorkflow.development_handoff_allowed ? "bg-emerald-100 text-emerald-800" : qualityWorkflow.status === "REVISION_REQUIRED" || qualityWorkflow.status === "MAX_REVISIONS_REACHED" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-900"}`}>{uiLabel(qualityWorkflow.status)}</span> : null}
                             </div>
                             <div className="mt-4 flex flex-wrap gap-2">
-                              <button disabled={qualityRun !== null || qualityWorkflow?.status === "REVISION_REQUIRED"} onClick={() => runQuality(requirement.id, "qa")} className="rounded-lg bg-cyan-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{qualityRun === `${requirement.id}:qa` ? "Generating QA…" : testArtifact && acceptanceArtifact ? "Refresh QA artifacts" : "Generate QA artifacts"}</button>
-                              <button disabled={qualityRun !== null || !testArtifact || !acceptanceArtifact || qualityWorkflow?.status === "REVISION_REQUIRED"} onClick={() => runQuality(requirement.id, "review")} className="rounded-lg bg-ink px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{qualityRun === `${requirement.id}:review` ? "Reviewing…" : "Run SA Review"}</button>
+                              <button disabled={qualityRun !== null || qualityWorkflow?.status === "REVISION_REQUIRED"} onClick={() => runQuality(requirement.id, "qa")} className="rounded-lg bg-cyan-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{qualityRun === `${requirement.id}:qa` ? "Membuat artefak QA…" : testArtifact && acceptanceArtifact ? "Perbarui artefak QA" : "Buat artefak QA"}</button>
+                              <button disabled={qualityRun !== null || !testArtifact || !acceptanceArtifact || qualityWorkflow?.status === "REVISION_REQUIRED"} onClick={() => runQuality(requirement.id, "review")} className="rounded-lg bg-ink px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{qualityRun === `${requirement.id}:review` ? "Meninjau…" : "Jalankan review sistem analis"}</button>
                             </div>
                             {testArtifact && acceptanceArtifact ? <p className="mt-3 text-xs text-ink/55">Test Scenario v{testArtifact.version} · Acceptance Criteria v{acceptanceArtifact.version}</p> : null}
-                            {qualityWorkflow ? <p className="mt-2 text-xs text-ink/55">Revision {qualityWorkflow.revision_count} of {qualityWorkflow.max_revisions} · Development Handoff {qualityWorkflow.development_handoff_allowed ? "unlocked" : "locked"}</p> : null}
-                            {qualityWorkflow?.development_handoff_allowed ? <Link href={`/projects/${project.id}/requirements/${requirement.id}/handoff`} className="mt-4 inline-flex rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white">Open Development Handoff</Link> : null}
+                            {qualityWorkflow ? <p className="mt-2 text-xs text-ink/55">Revisi {qualityWorkflow.revision_count} dari {qualityWorkflow.max_revisions} · Serah terima {qualityWorkflow.development_handoff_allowed ? "terbuka" : "terkunci"}</p> : null}
+                            {qualityWorkflow?.development_handoff_allowed ? <Link href={`/projects/${project.id}/requirements/${requirement.id}/handoff`} className="mt-4 inline-flex rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white">Buka serah terima pengembangan</Link> : null}
                             {qualityWorkflow?.issues.length ? (
                               <div className="mt-4 space-y-3">
                                 {qualityWorkflow.issues.map((issue, index) => (
                                   <div key={`${issue.artifact}-${index}`} className="rounded-lg border border-red-200 bg-white p-4">
-                                    <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-bold text-red-700">{issue.severity}</span><span className="text-xs font-semibold">{issue.artifact.replaceAll("_", " ")}</span></div>
+                                    <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-bold text-red-700">{uiLabel(issue.severity)}</span><span className="text-xs font-semibold">{uiLabel(issue.artifact)}</span></div>
                                     <p className="mt-2 text-sm font-semibold">{issue.issue}</p>
                                     <p className="mt-1 text-xs leading-5 text-ink/60">{issue.reason}</p>
-                                    <p className="mt-1 text-xs leading-5 text-ink/60"><span className="font-semibold">Revision:</span> {issue.recommended_revision}</p>
-                                    <button disabled={qualityRun !== null || qualityWorkflow.status === "MAX_REVISIONS_REACHED"} onClick={() => reviseQualityArtifact(requirement.id, issue.artifact)} className="mt-3 rounded-lg border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 disabled:opacity-40">{qualityRun === `${requirement.id}:revise:${issue.artifact}` ? "Revising…" : `Revise ${issue.artifact.replaceAll("_", " ")}`}</button>
+                                    <p className="mt-1 text-xs leading-5 text-ink/60"><span className="font-semibold">Revisi:</span> {issue.recommended_revision}</p>
+                                    <button disabled={qualityRun !== null || qualityWorkflow.status === "MAX_REVISIONS_REACHED"} onClick={() => reviseQualityArtifact(requirement.id, issue.artifact)} className="mt-3 rounded-lg border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 disabled:opacity-40">{qualityRun === `${requirement.id}:revise:${issue.artifact}` ? "Merevisi…" : `Revisi ${uiLabel(issue.artifact)}`}</button>
                                   </div>
                                 ))}
                               </div>
@@ -535,36 +557,36 @@ export function RequirementWorkspace({
 
               {baselineFor === requirement.id && !baseline ? (
                 <form onSubmit={(event) => createBaseline(event, requirement)} className="mt-6 border-t border-ink/10 pt-6">
-                  <h4 className="font-bold">Requirement baseline</h4>
-                  <p className="mt-1 text-sm text-ink/55">Review every field. This form structures supplied facts only.</p>
+                  <h4 className="font-bold">Baseline requirement</h4>
+                  <p className="mt-1 text-sm text-ink/55">Tinjau setiap kolom. Formulir ini hanya menyusun fakta yang Anda berikan.</p>
                   <div className="mt-5 grid gap-5 md:grid-cols-2">
-                    <label className="text-sm font-semibold">Feature<input required name="feature" defaultValue={requirement.title} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold">Business objective<input required name="baseline_business_objective" defaultValue={requirement.business_objective ?? project.business_objective} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold md:col-span-2">Problem statement<textarea required name="problem_statement" rows={3} defaultValue={requirement.raw_requirement} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold">Actors<textarea name="baseline_actors" rows={3} defaultValue={requirement.actors.join("\n")} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold">Known requirements<textarea name="known_requirements" rows={3} defaultValue={requirement.raw_requirement} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold">Business rules<textarea name="business_rules" rows={3} defaultValue={requirement.known_rules.join("\n")} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold">Constraints<textarea name="baseline_constraints" rows={3} defaultValue={requirement.constraints.join("\n")} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold">Dependencies<textarea name="baseline_dependencies" rows={3} defaultValue={requirement.dependencies.join("\n")} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold">Assumptions<textarea name="assumptions" rows={3} className={fieldClass} /></label>
-                    <label className="text-sm font-semibold">Unknown information<textarea name="unknown_information" rows={3} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Fitur<input required name="feature" defaultValue={requirement.title} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Tujuan bisnis<input required name="baseline_business_objective" defaultValue={requirement.business_objective ?? project.business_objective} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold md:col-span-2">Pernyataan masalah<textarea required name="problem_statement" rows={3} defaultValue={requirement.raw_requirement} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Aktor<textarea name="baseline_actors" rows={3} defaultValue={requirement.actors.join("\n")} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Kebutuhan yang diketahui<textarea name="known_requirements" rows={3} defaultValue={requirement.raw_requirement} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Aturan bisnis<textarea name="business_rules" rows={3} defaultValue={requirement.known_rules.join("\n")} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Batasan<textarea name="baseline_constraints" rows={3} defaultValue={requirement.constraints.join("\n")} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Dependensi<textarea name="baseline_dependencies" rows={3} defaultValue={requirement.dependencies.join("\n")} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Asumsi<textarea name="assumptions" rows={3} className={fieldClass} /></label>
+                    <label className="text-sm font-semibold">Informasi yang belum diketahui<textarea name="unknown_information" rows={3} className={fieldClass} /></label>
                   </div>
-                  <div className="mt-5 flex justify-end"><button disabled={submitting} className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">Create baseline v1</button></div>
+                  <div className="mt-5 flex justify-end"><button disabled={submitting} className="rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">Buat baseline v1</button></div>
                 </form>
               ) : null}
             </article>
           );
         })}
-        {!requirements.length ? <div className="rounded-2xl border border-dashed border-ink/20 p-8 text-center text-sm text-ink/50">No requirements captured yet.</div> : null}
+        {!requirements.length ? <div className="rounded-2xl border border-dashed border-ink/20 p-8 text-center text-sm text-ink/50">Belum ada requirement yang dicatat.</div> : null}
       </div>
 
       {artifacts.length ? (
         <div className="mt-10">
-          <h3 className="text-lg font-bold">Artifact registry</h3>
+          <h3 className="text-lg font-bold">Daftar artefak analisis</h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {artifacts.map((artifact) => {
               const sources = getResearchSources(artifact);
-              return <div key={artifact.id} className="rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm"><div className="flex justify-between gap-3"><span className="font-semibold">{artifact.artifact_type.replaceAll("_", " ")}</span><span className="text-ink/45">v{artifact.version}</span></div><p className="mt-1 text-xs text-ink/45">{artifact.status} · {artifact.created_by}</p>{sources.length ? <div className="mt-3 border-t border-ink/10 pt-3"><p className="text-xs font-semibold uppercase tracking-wide text-ink/45">Sources</p><ul className="mt-2 space-y-2">{sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-sky-700 underline decoration-sky-300 underline-offset-2">{source.title}</a><p className="mt-0.5 text-xs leading-5 text-ink/55">{source.supports}</p></li>)}</ul></div> : null}</div>;
+              return <div key={artifact.id} className="rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm"><div className="flex justify-between gap-3"><span className="font-semibold">{uiLabel(artifact.artifact_type)}</span><span className="text-ink/45">v{artifact.version}</span></div><p className="mt-1 text-xs text-ink/45">{uiLabel(artifact.status)} · {artifact.created_by}</p>{sources.length ? <div className="mt-3 border-t border-ink/10 pt-3"><p className="text-xs font-semibold uppercase tracking-wide text-ink/45">Sumber</p><ul className="mt-2 space-y-2">{sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-sky-700 underline decoration-sky-300 underline-offset-2">{source.title}</a><p className="mt-0.5 text-xs leading-5 text-ink/55">{source.supports}</p></li>)}</ul></div> : null}</div>;
             })}
           </div>
         </div>

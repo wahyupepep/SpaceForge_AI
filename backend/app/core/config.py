@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     orchestrator_lease_seconds: int = Field(default=900, ge=60, le=3600)
     max_request_body_bytes: int = Field(default=5_242_880, ge=65_536, le=52_428_800)
     file_storage_root: Path = Path(".data/files")
+    auth_cookie_secure: bool = False
 
     model_config = SettingsConfigDict(
         env_file=("../.env", ".env"),

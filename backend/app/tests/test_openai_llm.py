@@ -98,3 +98,42 @@ async def test_openai_adapter_passes_configured_tools() -> None:
         text_format=ExampleOutput,
         tools=[{"type": "web_search"}],
     )
+
+
+@pytest.mark.asyncio
+async def test_openai_adapter_passes_visual_evidence_as_multimodal_input() -> None:
+    parsed = ExampleOutput(answer="screen inspected")
+    parse = AsyncMock(
+        return_value=SimpleNamespace(
+            output_parsed=parsed,
+            id="response-image",
+            model="configured-model",
+            usage=None,
+        )
+    )
+    client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
+    request = LLMRequest(
+        system_prompt="Inspect supplied evidence.",
+        user_prompt="Analyze the current UI.",
+        model="configured-model",
+        max_output_tokens=500,
+        image_urls=("data:image/png;base64,AAAA",),
+    )
+
+    await OpenAILLMService(client).generate_structured(request, ExampleOutput)
+
+    parse.assert_awaited_once_with(
+        model="configured-model",
+        instructions="Inspect supplied evidence.",
+        input=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "input_text", "text": "Analyze the current UI."},
+                    {"type": "input_image", "image_url": "data:image/png;base64,AAAA"},
+                ],
+            }
+        ],
+        max_output_tokens=500,
+        text_format=ExampleOutput,
+    )

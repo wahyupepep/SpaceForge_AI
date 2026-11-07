@@ -93,6 +93,7 @@ SYSTEM_PROMPT = "\n".join(
         "workstreams are actually required by the specification.",
         "Tasks describe implementation work but must not contain source code, migrations, or new "
         "solution decisions. Do not create new acceptance criteria.",
+        "Write every user-facing task title, objective, scope, and technical note in clear Indonesian. Keep enum values, identifiers, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )

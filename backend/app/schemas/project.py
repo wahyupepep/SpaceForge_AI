@@ -75,5 +75,21 @@ class ProjectResponse(BaseModel):
     owner_id: Optional[UUID]
     context: ProjectContextResponse
     missing_context_fields: list[str] = Field(default_factory=list)
+    evidence_count: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+
+class ProjectEvidenceResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    project_id: UUID
+    category: str
+    title: str
+    description: Optional[str]
+    original_filename: str
+    content_type: str
+    size_bytes: int
     created_at: datetime
     updated_at: datetime

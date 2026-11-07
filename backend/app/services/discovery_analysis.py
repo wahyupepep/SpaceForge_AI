@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import base64
+import io
+import zipfile
+from pathlib import PurePath
 from typing import Optional
 from uuid import UUID
 
@@ -30,7 +34,43 @@ from app.models.artifact import Artifact, ArtifactVersion
 from app.repositories.analysis import RequirementAnalysisRepository
 from app.schemas.artifact import ArtifactResponse
 from app.schemas.discovery import AnalyzeExistingSystemRequest, SpecialistAnalysisResponse
+from app.services.file_storage import FileStorageService
 from app.services.llm import LLMRequest, LLMResult
+
+TEXT_EXTENSIONS = {
+    ".txt",
+    ".md",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".xml",
+    ".csv",
+    ".sql",
+    ".py",
+    ".js",
+    ".jsx",
+    ".ts",
+    ".tsx",
+    ".java",
+    ".kt",
+    ".go",
+    ".rs",
+    ".php",
+    ".rb",
+    ".cs",
+    ".html",
+    ".css",
+    ".scss",
+    ".sh",
+}
+EVIDENCE_SOURCE_TYPES = {
+    "UI_SCREENSHOT": "SCREENSHOT_DESCRIPTION",
+    "SOURCE_CODE": "SOURCE_CODE_METADATA",
+    "API_DOCUMENTATION": "API_DOCUMENTATION",
+    "DATABASE_SCHEMA": "DATABASE_SCHEMA",
+    "PROCESS_DOCUMENT": "EXISTING_DOCUMENTATION",
+    "OTHER": "EXISTING_DOCUMENTATION",
+}
 
 
 class DiscoveryAnalysisService:
@@ -39,10 +79,12 @@ class DiscoveryAnalysisService:
         repository: RequirementAnalysisRepository,
         research_agent: Optional[ResearchAgent],
         existing_system_analyst: Optional[ExistingSystemAnalyst],
+        storage: Optional[FileStorageService] = None,
     ) -> None:
         self._repository = repository
         self._research_agent = research_agent
         self._existing_system_analyst = existing_system_analyst
+        self._storage = storage
 
     async def run_research(
         self, project_id: UUID, requirement_id: UUID
@@ -95,6 +137,7 @@ class DiscoveryAnalysisService:
                     "content": self._current_content(research),
                 }
             )
+        stored_evidence, image_urls = await self._stored_evidence(project)
         request = self._existing_system_analyst.build_request(
             ExistingSystemAgentInput(
                 project_type=project.project_type,
@@ -110,12 +153,14 @@ class DiscoveryAnalysisService:
                     "notes": project.context.notes,
                 },
                 requirement_baseline=self._current_content(baseline),
-                evidence=[
+                evidence=stored_evidence
+                + [
                     ExistingSystemEvidence.model_validate(item.model_dump())
                     for item in payload.evidence
                 ],
                 previous_artifacts=previous_artifacts,
-            )
+            ),
+            image_urls=tuple(image_urls),
         )
         execution = await self._start_execution(
             project_id,
@@ -177,6 +222,7 @@ class DiscoveryAnalysisService:
                 "max_output_tokens": request.max_output_tokens,
                 "temperature": request.temperature,
                 "tools": list(request.tools),
+                "image_count": len(request.image_urls),
             },
         )
         self._repository.add(execution)
@@ -244,6 +290,56 @@ class DiscoveryAnalysisService:
         execution.status = AgentExecutionStatus.FAILED
         execution.error_message = sanitized_error(error)
         await self._repository.commit()
+
+    async def _stored_evidence(
+        self, project: object
+    ) -> tuple[list[ExistingSystemEvidence], list[str]]:
+        evidence_items: list[ExistingSystemEvidence] = []
+        image_urls: list[str] = []
+        for item in getattr(project, "evidence", []):
+            content = (
+                f"File: {item.original_filename}. User note: "
+                f"{item.description or 'No additional note supplied.'}"
+            )
+            raw = b""
+            if self._storage is not None:
+                raw = await self._storage.read(item.storage_key)
+            suffix = PurePath(item.original_filename).suffix.lower()
+            if raw and item.content_type.startswith("image/"):
+                encoded = base64.b64encode(raw).decode("ascii")
+                image_urls.append(f"data:{item.content_type};base64,{encoded}")
+                content += " The attached image is available for visual inspection."
+            elif raw and suffix == ".zip":
+                content += "\nSource archive inventory and text excerpts:\n" + self._zip_excerpt(
+                    raw
+                )
+            elif raw and (item.content_type.startswith("text/") or suffix in TEXT_EXTENSIONS):
+                content += "\nFile content:\n" + raw[:100_000].decode("utf-8", errors="replace")
+            evidence_items.append(
+                ExistingSystemEvidence(
+                    source_type=EVIDENCE_SOURCE_TYPES.get(item.category, "EXISTING_DOCUMENTATION"),
+                    title=item.title,
+                    content=content,
+                )
+            )
+        return evidence_items, image_urls
+
+    @staticmethod
+    def _zip_excerpt(raw: bytes) -> str:
+        excerpts: list[str] = []
+        total_characters = 0
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            for member in archive.infolist()[:100]:
+                if member.is_dir() or member.file_size > 1_000_000:
+                    continue
+                suffix = PurePath(member.filename).suffix.lower()
+                excerpts.append(f"- {member.filename} ({member.file_size} bytes)")
+                if suffix not in TEXT_EXTENSIONS or total_characters >= 100_000:
+                    continue
+                snippet = archive.read(member)[:20_000].decode("utf-8", errors="replace")
+                excerpts.append(f"--- {member.filename} ---\n{snippet}")
+                total_characters += len(snippet)
+        return "\n".join(excerpts)
 
     @staticmethod
     def _current_content(artifact: Artifact) -> dict:

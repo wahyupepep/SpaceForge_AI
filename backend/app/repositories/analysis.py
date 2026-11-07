@@ -20,7 +20,9 @@ class RequirementAnalysisRepository:
 
     async def get_project(self, project_id: UUID) -> Project | None:
         result = await self._session.execute(
-            select(Project).options(selectinload(Project.context)).where(Project.id == project_id)
+            select(Project)
+            .options(selectinload(Project.context), selectinload(Project.evidence))
+            .where(Project.id == project_id)
         )
         return result.scalar_one_or_none()
 

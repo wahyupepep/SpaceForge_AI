@@ -70,6 +70,20 @@ SYSTEM_PROMPT = "\n".join(
         "- BLOCKED: analysis cannot continue because of an explicit conflict or "
         "unavailable prerequisite; explain it in blocked_reason.",
         "",
+        "Discovery policy:",
+        "- On the first analysis pass, do not mark the requirement READY. Run a discovery "
+        "round and ask the user about every material gap.",
+        "- Test coverage across business objective and success measure, in-scope and "
+        "out-of-scope behavior, actors and permissions, business rules, happy path, "
+        "alternative and exception paths, data and validation, integrations, non-functional "
+        "constraints, migration or rollout impact, and acceptance evidence.",
+        "- Do not ask a question whose answer is already explicit in the supplied context.",
+        "- If the initial input already covers every dimension, ask the user to confirm the "
+        "captured scope and named assumptions instead of inventing a missing fact.",
+        "- After answers exist, mark READY only when remaining unknowns are explicitly "
+        "non-blocking assumptions. Otherwise ask a focused follow-up round.",
+        "- Prefer decision-oriented questions with business examples over generic prompts.",
+        "",
         "Never design a technical solution. Never propose a database, UI, API, "
         "architecture, implementation, technology, or TO-BE process. Do not invent "
         "facts. Put uncertain statements in assumptions or unknown_information.",
@@ -78,6 +92,7 @@ SYSTEM_PROMPT = "\n".join(
         "For NEEDS_CLARIFICATION, provide at least one specific clarification question "
         "and leave blocked_reason empty.",
         "For BLOCKED, provide blocked_reason and leave clarification_questions empty.",
+        "Write every user-facing text field in clear Indonesian. Keep enum values, identifiers, URLs, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )

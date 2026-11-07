@@ -15,7 +15,7 @@ import type {
 } from "@/types/api";
 
 const errorMessage = (error: unknown) =>
-  error instanceof ApiClientError ? error.message : "The request could not be completed.";
+  error instanceof ApiClientError ? error.message : "Permintaan tidak dapat diselesaikan.";
 
 function developmentTasks(workflow: HandoffWorkflow | null): DevelopmentTask[] {
   const tasks = workflow?.task_artifact.content_json.tasks;
@@ -75,14 +75,14 @@ export function DevelopmentHandoffWorkspace({
   return (
     <div className="mt-8 grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
       <aside className="h-fit rounded-2xl border border-ink/10 bg-white p-4 shadow-sm lg:sticky lg:top-6">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink/45">Package navigation</p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink/45">Navigasi paket</p>
         <nav className="mt-3 space-y-1">
           {(packageContent?.sections ?? []).map((section) => (
             <a key={section.slug} href={`#${section.slug}`} className="block rounded-lg px-3 py-2 text-xs font-semibold text-ink/65 hover:bg-ink/5 hover:text-accent">
               {section.number} {section.title}
             </a>
           ))}
-          {!packageContent ? <p className="px-3 py-2 text-xs leading-5 text-ink/45">Generate the package after reviewing the task preview.</p> : null}
+          {!packageContent ? <p className="px-3 py-2 text-xs leading-5 text-ink/45">Buat paket setelah meninjau rancangan task.</p> : null}
         </nav>
       </aside>
 
@@ -92,12 +92,12 @@ export function DevelopmentHandoffWorkspace({
         <section className={`rounded-2xl border p-6 ${gateOpen ? "border-emerald-200 bg-emerald-50/50" : "border-amber-200 bg-amber-50"}`}>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink/45">Quality gate</p>
-              <h2 className="mt-1 text-lg font-bold">{gateOpen ? "PASS — handoff unlocked" : "Handoff locked"}</h2>
-              <p className="mt-1 text-sm text-ink/60">Only the exact artifact versions accepted by SA Review can enter this package.</p>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink/45">Pemeriksaan kualitas</p>
+              <h2 className="mt-1 text-lg font-bold">{gateOpen ? "LOLOS — serah terima terbuka" : "Serah terima terkunci"}</h2>
+              <p className="mt-1 text-sm text-ink/60">Hanya versi artefak yang telah diterima reviewer sistem analis yang dapat masuk ke paket ini.</p>
             </div>
             <button disabled={!gateOpen || running !== null} onClick={plan} className="rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">
-              {running === "plan" ? "Planning…" : workflow ? "Regenerate task plan" : "Plan development tasks"}
+              {running === "plan" ? "Menyusun…" : workflow ? "Susun ulang rencana task" : "Susun task pengembangan"}
             </button>
           </div>
         </section>
@@ -106,12 +106,12 @@ export function DevelopmentHandoffWorkspace({
           <section className="rounded-2xl border border-ink/10 bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Task preview · v{workflow.current_task_version}</p>
-                <h2 className="mt-1 text-xl font-bold">Review before package generation</h2>
-                <p className="mt-1 text-sm text-ink/55">{tasks.length} dependency-aware tasks. Generation exports this exact version.</p>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Pratinjau task · v{workflow.current_task_version}</p>
+                <h2 className="mt-1 text-xl font-bold">Tinjau sebelum membuat paket</h2>
+                <p className="mt-1 text-sm text-ink/55">{tasks.length} task beserta dependensinya. Paket akan memakai versi ini.</p>
               </div>
               <button disabled={!gateOpen || running !== null || !tasks.length} onClick={generatePackage} className="rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">
-                {running === "package" ? "Generating…" : "Generate handoff package"}
+                {running === "package" ? "Membuat paket…" : "Buat paket serah terima"}
               </button>
             </div>
             <ol className="mt-6 space-y-4">
@@ -122,9 +122,9 @@ export function DevelopmentHandoffWorkspace({
                   <p className="mt-1 text-sm leading-6 text-ink/65">{task.objective}</p>
                   <div className="mt-3 grid gap-3 text-xs text-ink/60 sm:grid-cols-2">
                     <p><span className="font-bold text-ink">Requirement:</span> {task.requirement}</p>
-                    <p><span className="font-bold text-ink">Dependencies:</span> {task.dependency.join(", ") || "None"}</p>
-                    <p><span className="font-bold text-ink">Acceptance:</span> {task.acceptance_criteria.join(", ")}</p>
-                    <p><span className="font-bold text-ink">Artifacts:</span> {task.reference_artifact.join(", ")}</p>
+                    <p><span className="font-bold text-ink">Dependensi:</span> {task.dependency.join(", ") || "Tidak ada"}</p>
+                    <p><span className="font-bold text-ink">Kriteria penerimaan:</span> {task.acceptance_criteria.join(", ")}</p>
+                    <p><span className="font-bold text-ink">Artefak:</span> {task.reference_artifact.join(", ")}</p>
                   </div>
                 </li>
               ))}
@@ -136,18 +136,18 @@ export function DevelopmentHandoffWorkspace({
           <>
             <section className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Package v{workflow.current_package.version}</p><h2 className="mt-1 text-xl font-bold">{packageContent.package_name}</h2></div>
+                <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Paket v{workflow.current_package.version}</p><h2 className="mt-1 text-xl font-bold">{packageContent.package_name}</h2></div>
                 <div className="flex flex-wrap gap-2">
                   {(["json", "markdown", "trello"] as const).map((format) => (
-                    <a key={format} href={`${env.apiBaseUrl}/projects/${project.id}/requirements/${requirement.id}/handoff/packages/${workflow.current_package?.version}/download/${format}`} className="rounded-lg border border-emerald-300 px-3 py-2 text-xs font-bold uppercase text-emerald-800 hover:bg-emerald-50">Download {format}</a>
+                    <a key={format} href={`${env.apiBaseUrl}/projects/${project.id}/requirements/${requirement.id}/handoff/packages/${workflow.current_package?.version}/download/${format}`} className="rounded-lg border border-emerald-300 px-3 py-2 text-xs font-bold uppercase text-emerald-800 hover:bg-emerald-50">Unduh {format}</a>
                   ))}
                 </div>
               </div>
             </section>
 
             <section className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm">
-              <div className="border-b border-ink/10 px-6 py-4"><h2 className="font-bold">Task traceability</h2></div>
-              <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-xs"><thead className="bg-ink/[0.03] text-ink/50"><tr><th className="px-4 py-3">Task</th><th className="px-4 py-3">Requirement</th><th className="px-4 py-3">Acceptance</th><th className="px-4 py-3">Artifacts</th></tr></thead><tbody>{packageContent.traceability.map((entry) => <tr key={entry.task_id} className="border-t border-ink/10"><td className="px-4 py-3 font-bold">{entry.task_id}</td><td className="px-4 py-3">{entry.requirement}</td><td className="px-4 py-3">{entry.acceptance_criteria.join(", ")}</td><td className="px-4 py-3">{entry.reference_artifacts.join(", ")}</td></tr>)}</tbody></table></div>
+              <div className="border-b border-ink/10 px-6 py-4"><h2 className="font-bold">Ketertelusuran task</h2></div>
+              <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-xs"><thead className="bg-ink/[0.03] text-ink/50"><tr><th className="px-4 py-3">Task</th><th className="px-4 py-3">Requirement</th><th className="px-4 py-3">Kriteria penerimaan</th><th className="px-4 py-3">Artefak</th></tr></thead><tbody>{packageContent.traceability.map((entry) => <tr key={entry.task_id} className="border-t border-ink/10"><td className="px-4 py-3 font-bold">{entry.task_id}</td><td className="px-4 py-3">{entry.requirement}</td><td className="px-4 py-3">{entry.acceptance_criteria.join(", ")}</td><td className="px-4 py-3">{entry.reference_artifacts.join(", ")}</td></tr>)}</tbody></table></div>
             </section>
 
             {packageContent.sections.map((section) => (
@@ -155,7 +155,7 @@ export function DevelopmentHandoffWorkspace({
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">{section.number}</p>
                 <h2 className="mt-1 text-xl font-bold">{section.title}</h2>
                 <div className="mt-2 flex flex-wrap gap-2">{section.source_artifacts.map((source) => <span key={`${source.artifact_id}-${source.version}`} className="rounded-full bg-ink/5 px-2.5 py-1 text-[11px] font-semibold text-ink/55">{source.artifact_type} v{source.version}</span>)}</div>
-                <details className="mt-4" open={section.number === "13"}><summary className="cursor-pointer text-sm font-semibold text-accent">Preview structured content</summary><pre className="mt-3 max-h-[520px] overflow-auto rounded-xl bg-slate-950 p-4 text-xs leading-6 text-slate-100">{JSON.stringify(section.content, null, 2)}</pre></details>
+                <details className="mt-4" open={section.number === "13"}><summary className="cursor-pointer text-sm font-semibold text-accent">Lihat konten terstruktur</summary><pre className="mt-3 max-h-[520px] overflow-auto rounded-xl bg-slate-950 p-4 text-xs leading-6 text-slate-100">{JSON.stringify(section.content, null, 2)}</pre></details>
               </section>
             ))}
           </>

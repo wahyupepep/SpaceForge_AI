@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #14213d;
-  --color-canvas: #f7f7f2;
-  --color-accent: #ff6b35;
+  --color-ink: #18201f;
+  --color-canvas: #f3f1eb;
+  --color-accent: #d6532d;
 }
 
 :root {
@@ -16,7 +16,28 @@
 
 body {
   margin: 0;
-  background: #f7f7f2;
-  color: #14213d;
-  font-family: Arial, Helvetica, sans-serif;
+  background: #f3f1eb;
+  color: #18201f;
+  font-family: "Avenir Next", Avenir, "Segoe UI", Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: #f0cbbb; color: #18201f; }
+
+button, a, input, textarea, select { transition-duration: 160ms; }
+
+:focus-visible { outline: 2px solid #d6532d; outline-offset: 2px; }
+
+input, textarea, select { font: inherit; }
+
+/* Compact product UI: keep legacy utility markup from becoming overly soft or card-heavy. */
+.rounded-3xl { border-radius: 12px; }
+.rounded-2xl { border-radius: 10px; }
+.rounded-xl { border-radius: 8px; }
+.shadow-xl { box-shadow: 0 16px 40px rgb(24 32 31 / 0.10); }
+.shadow-sm { box-shadow: 0 1px 2px rgb(24 32 31 / 0.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }

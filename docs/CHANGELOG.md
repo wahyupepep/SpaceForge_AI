@@ -6,6 +6,11 @@ Format mengikuti prinsip [Keep a Changelog](https://keepachangelog.com/en/1.1.0/
 
 ### Added
 
+- Interactive requirement discovery policy that requires an initial clarification round and checks scope, actors, rules, exceptions, data, integrations, non-functional constraints, rollout, and acceptance evidence before readiness.
+- Persistent enhancement evidence uploads for UI screenshots, source archives, API docs, schemas, and process documents, with a mandatory context gate and Existing System Analyst ingestion.
+- Multimodal screenshot analysis plus bounded text/source/ZIP extraction through the existing file-storage abstraction.
+- Local account registration/login, PBKDF2-SHA256 password hashing, hashed 30-day sessions, project ownership, legacy-project adoption for the first account, and a resumable workspace login experience.
+
 - Phase 0 repository foundation untuk frontend, backend, docs, dan Docker.
 - Next.js dashboard shell dengan sidebar dan placeholder project workspace.
 - FastAPI `GET /health` endpoint beserta test dasar.

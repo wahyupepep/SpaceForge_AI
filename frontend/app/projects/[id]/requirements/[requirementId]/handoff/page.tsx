@@ -38,11 +38,11 @@ export default async function DevelopmentHandoffPage({
 
   return (
     <div className="mx-auto max-w-7xl">
-      <Link href={`/projects/${id}`} className="text-sm font-semibold text-ink/50 hover:text-accent">← Back to project</Link>
+      <Link href={`/projects/${id}`} className="text-sm font-semibold text-ink/50 hover:text-accent">← Kembali ke proyek</Link>
       <div className="mt-8 border-b border-ink/10 pb-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Development Handoff</p>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Serah terima pengembangan</p>
         <h1 className="mt-2 text-4xl font-bold tracking-tight">{requirement.title}</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-ink/60">Preview dependency-aware tasks, inspect traceability, and export the approved specification package without creating new requirements.</p>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-ink/60">Tinjau task beserta dependensinya, periksa ketertelusuran, dan ekspor paket spesifikasi yang telah disetujui.</p>
       </div>
       <DevelopmentHandoffWorkspace project={project} requirement={requirement} qualityWorkflow={qualityWorkflow} initialWorkflow={workflow} />
     </div>

@@ -125,6 +125,7 @@ FLOW_SYSTEM_PROMPT = "\n".join(
         "Markdown code fences. Keep node labels concise and safe for Mermaid parsers.",
         "Do not create UI, database, API, source implementation, or new business requirements.",
         "When revision_feedback is present, correct every cited issue without expanding scope.",
+        "Write every user-facing text field and diagram label in clear Indonesian. Keep enum values, identifiers, URLs, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )
@@ -144,6 +145,7 @@ UI_SYSTEM_PROMPT = "\n".join(
         "Every screen must include explicit requirement_refs. This is a specification prototype, "
         "not production code and not the target business application.",
         "When revision_feedback is present, correct every cited issue without expanding scope.",
+        "Write all visible prototype copy and user-facing text fields in clear Indonesian. Keep identifiers, filenames, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )
@@ -163,6 +165,7 @@ TECHNICAL_SYSTEM_PROMPT = "\n".join(
         "traceability. Classify endpoints REUSE, MODIFY, NEW, or DEPRECATED.",
         "Do not emit migrations, ORM models, controllers, application code, or deployment steps.",
         "When revision_feedback is present, correct every cited issue without expanding scope.",
+        "Write every descriptive user-facing text field in clear Indonesian. Keep enum values, identifiers, endpoints, field names, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )

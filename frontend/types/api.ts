@@ -39,6 +39,20 @@ export type Project = {
   owner_id: string | null;
   context: ProjectContext;
   missing_context_fields: string[];
+  evidence_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProjectEvidence = {
+  id: string;
+  project_id: string;
+  category: "UI_SCREENSHOT" | "SOURCE_CODE" | "API_DOCUMENTATION" | "DATABASE_SCHEMA" | "PROCESS_DOCUMENT" | "OTHER";
+  title: string;
+  description: string | null;
+  original_filename: string;
+  content_type: string;
+  size_bytes: number;
   created_at: string;
   updated_at: string;
 };

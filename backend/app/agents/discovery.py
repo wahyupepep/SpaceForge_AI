@@ -116,6 +116,7 @@ RESEARCH_SYSTEM_PROMPT = "\n".join(
         "and a concise statement of what each source supports.",
         "Separate generally observed patterns from requirement-specific facts. Do not invent "
         "sources or claim that a practice is mandatory without evidence.",
+        "Write every user-facing text field in clear Indonesian. Keep enum values, identifiers, URLs, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )
@@ -133,6 +134,7 @@ EXISTING_SYSTEM_SYSTEM_PROMPT = "\n".join(
         "absent; it is not permission to design the solution.",
         "For ENHANCEMENT, provide a substantive AS-IS summary, affected components, and gap "
         "analysis. Do not design TO-BE behavior or a final technical solution.",
+        "Write every user-facing text field in clear Indonesian. Keep enum values, identifiers, URLs, code, and established technical names unchanged.",
         "Return only the structured output requested by the schema.",
     )
 )
@@ -175,7 +177,12 @@ class ExistingSystemAnalyst:
         self._llm = llm
         self._config = config
 
-    def build_request(self, input_data: ExistingSystemAgentInput) -> LLMRequest:
+    def build_request(
+        self,
+        input_data: ExistingSystemAgentInput,
+        *,
+        image_urls: tuple[str, ...] = (),
+    ) -> LLMRequest:
         return LLMRequest(
             agent_name=self.name,
             system_prompt=EXISTING_SYSTEM_SYSTEM_PROMPT,
@@ -183,6 +190,7 @@ class ExistingSystemAnalyst:
             model=self._config.model,
             max_output_tokens=self._config.max_output_tokens,
             temperature=self._config.temperature,
+            image_urls=image_urls,
         )
 
     async def analyze(

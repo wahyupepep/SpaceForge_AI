@@ -21,6 +21,8 @@ ENHANCEMENT_REQUIRED_CONTEXT_FIELDS = (
     "requested_change",
 )
 
+ENHANCEMENT_EVIDENCE_FIELD = "reference_evidence"
+
 
 def missing_enhancement_context(context: object) -> list[str]:
     return [

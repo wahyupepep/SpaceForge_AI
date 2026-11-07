@@ -6,7 +6,7 @@ import pytest
 
 from app.core.errors import ContextIncompleteError, NotFoundError
 from app.domain.projects import ProjectStatus, ProjectType
-from app.models.project import Project
+from app.models.project import Project, ProjectEvidence
 from app.schemas.project import ProjectContextInput, ProjectCreate, ProjectUpdate
 from app.services.projects import ProjectService
 
@@ -78,6 +78,7 @@ async def test_enhancement_stays_draft_and_exposes_missing_as_is_fields() -> Non
         "current_rules",
         "current_problem",
         "requested_change",
+        "reference_evidence",
     ]
 
 
@@ -110,6 +111,16 @@ async def test_complete_enhancement_can_become_ready_for_analysis() -> None:
                 requested_change="Add nominal-based approval tiers.",
             )
         ),
+    )
+    repository.projects[project.id].evidence.append(
+        ProjectEvidence(
+            category="UI_SCREENSHOT",
+            title="Current approval UI",
+            original_filename="approval.png",
+            storage_key=f"projects/{project.id}/evidence/approval.png",
+            content_type="image/png",
+            size_bytes=100,
+        )
     )
 
     ready = await service.submit_for_analysis(project.id)

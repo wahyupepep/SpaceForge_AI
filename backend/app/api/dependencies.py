@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Cookie, Depends
 from openai import AsyncOpenAI
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +19,7 @@ from app.core.config import settings
 from app.db.session import get_db_session
 from app.integrations.local_file_storage import LocalFileStorageService
 from app.integrations.openai_llm import OpenAILLMService
+from app.models.auth import User
 from app.repositories.analysis import RequirementAnalysisRepository
 from app.repositories.artifacts import ArtifactRepository
 from app.repositories.handoff import HandoffRepository
@@ -28,6 +29,7 @@ from app.repositories.quality import QualityRepository
 from app.repositories.requirements import RequirementRepository
 from app.repositories.solution import SolutionRepository
 from app.services.artifacts import ArtifactService
+from app.services.auth import SESSION_COOKIE, AuthService
 from app.services.design_generation import DesignGenerationService
 from app.services.development_handoff import DevelopmentHandoffService
 from app.services.discovery_analysis import DiscoveryAnalysisService
@@ -51,10 +53,29 @@ def _openai_llm_service() -> OpenAILLMService:
     )
 
 
+def get_auth_service(
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> AuthService:
+    return AuthService(session)
+
+
+async def get_optional_current_user(
+    service: Annotated[AuthService, Depends(get_auth_service)],
+    token: Annotated[str | None, Cookie(alias=SESSION_COOKIE)] = None,
+) -> User | None:
+    return await service.current_user(token)
+
+
 def get_project_service(
     session: Annotated[AsyncSession, Depends(get_db_session)],
+    current_user: Annotated[User | None, Depends(get_optional_current_user)],
 ) -> ProjectService:
-    return ProjectService(SQLAlchemyProjectRepository(session))
+    return ProjectService(
+        SQLAlchemyProjectRepository(
+            session, owner_id=current_user.id if current_user is not None else None
+        ),
+        LocalFileStorageService(settings.file_storage_root),
+    )
 
 
 def get_requirement_service(
@@ -118,6 +139,7 @@ def get_discovery_analysis_service(
         RequirementAnalysisRepository(session),
         research_agent,
         existing_system_analyst,
+        LocalFileStorageService(settings.file_storage_root),
     )
 
 

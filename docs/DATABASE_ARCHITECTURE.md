@@ -54,7 +54,9 @@ Phase 8 menambahkan handoff task pointer, lifecycle, immutable package versions,
 
 ## Phase 1 relational model
 
-- `projects`: UUID identity, name, description, project type, business objective, status, nullable future `owner_id`, dan audit timestamps.
+- `users` dan `user_sessions`: local workspace identity, PBKDF2-SHA256 password hash, hashed session token, dan expiry.
+- `projects`: UUID identity, name, description, project type, business objective, status, nullable `owner_id` untuk kompatibilitas data legacy, dan audit timestamps.
+- `project_evidence`: metadata serta storage key untuk screenshot, source archive, schema, API documentation, dan evidence enhancement lainnya.
 - `project_contexts`: one-to-one project foreign key dengan cascade delete, field AS-IS, constraints, notes, dan audit timestamps.
 - PostgreSQL enums mengunci `NEW_SYSTEM`, `NEW_FEATURE`, `ENHANCEMENT` serta `DRAFT`, `CONTEXT_INCOMPLETE`, `READY_FOR_ANALYSIS`.
 

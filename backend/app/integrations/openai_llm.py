@@ -23,10 +23,20 @@ class OpenAILLMService:
         request: LLMRequest,
         output_schema: type[StructuredOutput],
     ) -> LLMResult[StructuredOutput]:
+        input_value: Any = request.user_prompt
+        if request.image_urls:
+            content: list[dict[str, Any]] = [
+                {"type": "input_text", "text": request.user_prompt}
+            ]
+            content.extend(
+                {"type": "input_image", "image_url": image_url}
+                for image_url in request.image_urls
+            )
+            input_value = [{"role": "user", "content": content}]
         arguments: dict[str, Any] = {
             "model": request.model,
             "instructions": request.system_prompt,
-            "input": request.user_prompt,
+            "input": input_value,
             "max_output_tokens": request.max_output_tokens,
             "text_format": output_schema,
         }

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.routes.artifacts import router as artifacts_router
+from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.design_generation import router as design_generation_router
 from app.api.v1.routes.development_handoff import router as development_handoff_router
 from app.api.v1.routes.discovery_analysis import router as discovery_analysis_router
@@ -14,6 +15,7 @@ from app.api.v1.routes.solution_analysis import router as solution_analysis_rout
 
 router = APIRouter()
 router.include_router(health_router)
+router.include_router(auth_router)
 router.include_router(projects_router)
 router.include_router(requirements_router)
 router.include_router(artifacts_router)

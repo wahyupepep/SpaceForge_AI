@@ -52,6 +52,6 @@ Invariant diterapkan di service backend. Conditional form frontend membantu user
 
 ## Deliberate limitations
 
-- Single-user development mode; `owner_id` belum diisi sampai authentication tersedia.
+- Local account workspace; project baru memiliki `owner_id`, dan akun pertama mengadopsi project legacy yang belum memiliki owner.
 - Requirement Analyst, Research Agent, Existing System Analyst, Solution Analyst, Phase 6 design specialists, QA Analyst, SA Reviewer, dan Development Planner tersedia; end-to-end LangGraph execution belum diaktifkan.
 - Pagination API tersedia melalui `offset`/`limit`; UI belum menyediakan pagination control.

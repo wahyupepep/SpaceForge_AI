@@ -13,7 +13,8 @@ from app.core.errors import (
     QualityGateBlockedError,
     TechnicalDesignBlockedError,
 )
-from app.domain.artifacts import APPROVAL_GATED_ARTIFACT_TYPES, ArtifactType
+from app.domain.analysis import RequirementReadiness
+from app.domain.artifacts import APPROVAL_GATED_ARTIFACT_TYPES, ArtifactStatus, ArtifactType
 from app.domain.projects import ProjectStatus
 from app.domain.quality import QualityWorkflowStatus
 from app.domain.requirements import RequirementStatus
@@ -122,9 +123,7 @@ class ArtifactService:
         await self._ensure_solution_approved(
             project_id, payload.requirement_id, payload.artifact_type
         )
-        await self._ensure_quality_passed(
-            project_id, payload.requirement_id, payload.artifact_type
-        )
+        await self._ensure_quality_passed(project_id, payload.requirement_id, payload.artifact_type)
 
         content = self._validated(payload.artifact_type, payload.content_json)
         artifact = Artifact(
@@ -140,6 +139,11 @@ class ArtifactService:
         await self._repository.add(artifact)
         if requirement is not None and payload.artifact_type == ArtifactType.REQUIREMENT_BASELINE:
             requirement.status = RequirementStatus.BASELINED
+            if (
+                payload.status == ArtifactStatus.VALIDATED
+                and content.get("readiness") == RequirementReadiness.READY.value
+            ):
+                requirement.analysis_readiness = RequirementReadiness.READY
         try:
             await self._repository.commit()
         except IntegrityError as error:
@@ -186,6 +190,16 @@ class ArtifactService:
         artifact.current_version = next_version
         if payload.status is not None:
             artifact.status = payload.status
+        if (
+            artifact.requirement_id is not None
+            and artifact.artifact_type == ArtifactType.REQUIREMENT_BASELINE
+            and artifact.status == ArtifactStatus.VALIDATED
+            and content.get("readiness") == RequirementReadiness.READY.value
+        ):
+            requirement = await self._repository.get_requirement(artifact.requirement_id)
+            if requirement is not None:
+                requirement.status = RequirementStatus.BASELINED
+                requirement.analysis_readiness = RequirementReadiness.READY
         try:
             await self._repository.commit()
         except IntegrityError as error:

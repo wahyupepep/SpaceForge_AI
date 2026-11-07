@@ -1,6 +1,6 @@
 # MVP Limitations
 
-- No authentication, RBAC, tenant isolation, or application rate limiting. Deploy only on a trusted network.
+- Local email/password authentication and project ownership are available, but there is no RBAC, tenant isolation, password recovery, email verification, SSO, or application rate limiting. Deploy only on a trusted network.
 - No application-level field encryption or automatic PII classification/redaction. Exact prompts and responses are retained for audit.
 - Agent calls run in the API process; there is no queue, cancellation protocol, background worker, or live progress stream.
 - Workflow leases prevent concurrent persistence but cannot cancel an already-running remote LLM request and do not provide provider-side exactly-once semantics.
